@@ -1,30 +1,50 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+  <Navigation />
+  <div class="content">
+    <router-view />
   </div>
-  <router-view />
 </template>
 
+<script lang="ts">
+import { Options, Vue } from "vue-class-component";
+import Navigation from "@/components/Navigation.vue"; // @ is an alias to /src
+
+@Options({
+  components: {
+    Navigation,
+  },
+})
+export default class App extends Vue {}
+</script>
+
 <style lang="scss">
+html,
+body,
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  height: 100%;
 }
 
-#nav {
-  padding: 30px;
+body {
+  font-family: "Besley", serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: gray;
+}
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
+#app {
+  display: flex;
+}
 
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
+.content {
+  flex: 1;
+  background-color: red;
+}
+
+a {
+  text-decoration: none;
+  color: black;
 }
 </style>
