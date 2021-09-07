@@ -1,15 +1,14 @@
 <template>
-  <div class="wallet">
-    <button>Connect</button>
+  <div class="wallet" @click="plus">
+    <Button>Connect</Button>
   </div>
 </template>
 
 <script lang="ts">
-import { Vue } from "vue-class-component";
+import { defineComponent } from "@vue/runtime-core";
 
-export default class Wallet extends Vue {}
+// import Button from "./CustomButton.vue";
+export default defineComponent({
+  name: "Wallet",
+});
 </script>
-
-<style lang="scss" scoped>
-
-</style>

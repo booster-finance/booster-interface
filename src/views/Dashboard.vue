@@ -1,19 +1,33 @@
 <template>
   <div class="content">
+    <InfoBox v-if="projects.length == 0">
+      You created no projects so far.</InfoBox
+    >
+
     <ul>
-      <li v-for="(project, idx) of projects" :key="'project-' + idx">
+      <li
+        v-for="(project, idx) of projects"
+        :key="'project-' + idx"
+        class="project-row"
+      >
         <router-link :to="{ name: 'EditProject', params: { id: project.id } }">
-          {{ project.title }}
+          <div class="status" :class="getClassFromStatus(project.status)">
+            {{ getClassFromStatus(project.status) }}
+          </div>
+          <span>{{ project.title }}</span>
+          <span>Alloc {{ project.minAlloc }} -> {{ project.maxAlloc }}</span>
         </router-link>
       </li>
     </ul>
 
-    <router-link to="create">Create New Project</router-link>
+    <router-link to="create" class="button">Create New Project</router-link>
   </div>
 </template>
 
 <script lang="ts">
+import { ProjectPhase } from "@/model/Project";
 import { Vue, Options } from "vue-class-component";
+import InfoBox from "../components/InfoBox.vue";
 
 @Options({
   mounted: function () {
@@ -22,15 +36,77 @@ import { Vue, Options } from "vue-class-component";
     this.$data.projects = Object.values(projects);
     console.log(projects);
   },
-  components: {},
+  components: { InfoBox },
   data: function () {
     return {
       projects: [],
     };
   },
+  methods: {
+    getClassFromStatus: function (status: ProjectPhase) {
+      switch (status) {
+        case ProjectPhase.Investment:
+          return "invest";
+        case ProjectPhase.Payout:
+          return "payout";
+        case ProjectPhase.Spending:
+          return "spend";
+        case ProjectPhase.Edit:
+        default:
+          return "edit";
+      }
+    },
+  },
 })
-export default class Header extends Vue {}
+export default class Dashboard extends Vue {}
 </script>
 
 <style lang="scss" scoped>
+ul {
+  list-style-type: none;
+  padding: 0;
+  width: 100%;
+
+  li {
+    width: 100%;
+  }
+}
+
+.project-row a {
+  width: 100%;
+  display: flex;
+  text-decoration: none;
+  color: black;
+  border: 1px solid black;
+  padding: 10px 20px;
+  box-sizing: border-box;
+  align-items: center;
+
+  > span {
+    flex: 1;
+    padding: 10px;
+  }
+}
+
+.status {
+  // width: 32px;
+  // height: 32px;
+  padding: 5px 10px;
+  border-radius: 3px;
+  color: white;
+  text-transform: uppercase;
+}
+
+.invest {
+  background-color: cyan;
+}
+.payout {
+  background-color: orange;
+}
+.spend {
+  background-color: magenta;
+}
+.edit {
+  background-color: gray;
+}
 </style>

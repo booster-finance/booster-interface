@@ -26,7 +26,6 @@ header {
   display: flex;
   padding: 10px;
   position: relative;
-  background-color: whitesmoke;
   align-items: center;
 }
 

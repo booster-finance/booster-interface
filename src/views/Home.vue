@@ -1,7 +1,5 @@
 <template>
-  <div class="home">
-    <ProjectPreview />
-  </div>
+  <div class="home"></div>
 </template>
 
 <script lang="ts">
@@ -21,6 +19,7 @@ export default class Home extends Vue {}
 
 .home > .project-preview {
   max-width: 512px;
-  height: 720px;
+  margin: 20px;
+  //   height: 720px;
 }
 </style>

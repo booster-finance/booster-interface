@@ -5,12 +5,16 @@
       <h2>{{ project.title }}</h2>
       <p>{{ project.description }}</p>
 
-    <h3>Milestones</h3>
-      <ul>
-          <li></li>
-      </ul>
+      <h3>Milestones</h3>
 
-      <button>Add Milestone</button>
+      <ul>
+        <li
+          v-for="(milestone, idx) of project.milestones"
+          :key="'milestone-' + idx"
+        >
+          {{ milestone.title }}
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -38,8 +42,7 @@ import { Vue, Options } from "vue-class-component";
     };
   },
 })
-export default class Header extends Vue {}
+export default class EditProject extends Vue {}
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

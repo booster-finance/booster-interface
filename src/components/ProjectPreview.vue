@@ -30,9 +30,10 @@ export default class ProjectPreview extends Vue {}
 </script>
 
 <style lang="scss">
-
 .project-preview {
-  
+  border: 1px solid black;
+  border-radius: 3px;
+  padding: 20px;
 }
 
 .grid {
@@ -44,7 +45,6 @@ export default class ProjectPreview extends Vue {}
   > * {
     display: flex;
     justify-content: center;
-
   }
 }
 
