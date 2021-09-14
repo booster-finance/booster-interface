@@ -43,11 +43,6 @@ export default class App extends Vue {}
 </script>
 
 <style lang="scss">
-$black: #222;
-$gray-70: rgb(122, 122, 122);
-$gray-30: #dbdbdb;
-$white: #fefefe;
-
 html,
 body,
 #app {
@@ -97,28 +92,48 @@ main {
   flex: 1;
   margin: 10px 100px;
 }
-// .button {
-//   position: relative;
-//   text-decoration: none;
-//   color: black;
-//   border: 1px solid black;
-//   padding: 3px 10px;
+.button {
+  @include interactive();
 
-//   max-height: 100px;
+  position: relative;
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+  border: $border;
+  text-align: center;
 
-//   &:hover {
-//     background-color: whitesmoke;
-//   }
-// }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  background-color: $primary;
+  padding: 7px 15px;
+
+  // max-height: 100px;
+  // box-shadow: 1px 1px 3px rgba($color: #000, $alpha: 0.3);
+
+  &:hover {
+    background-color: lighten($primary, 3%);
+  }
+
+  &:active {
+    box-shadow: inset 1px 1px 5px rgba($color: #222, $alpha: 0.8);
+  }
+}
+
+.info {
+  border: $border;
+  padding: 30px;
+  background-color: $gray-30;
+  color: $white;
+  font-weight: bold;
+  text-align: center
+}
 
 .nav-item,
 textarea,
 input,
 button {
-  padding: 10px;
-  color: $black;
-  background-color: $white;
-  border-radius: 3px;
-  border: 1px solid $gray-30;
+  @include input();
 }
 </style>

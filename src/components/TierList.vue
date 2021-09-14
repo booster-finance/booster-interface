@@ -1,7 +1,7 @@
 <template>
   <List class="tier-list" :items="tiers" :max="9">
     <template v-slot:header>
-      <h3>Tier List</h3>
+      <h3>Tiers</h3>
     </template>
 
     <template v-slot:items>

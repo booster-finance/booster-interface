@@ -2,16 +2,16 @@ import { createStore } from "vuex";
 
 export default createStore({
   state: {
-    walletModalActive: false
+    walletModalActive: false,
   },
   mutations: {
-    closeWalletModal: function(state){
-      state.walletModalActive = false
+    closeWalletModal: function (state) {
+      state.walletModalActive = false;
     },
-    openWalletModal: function(state){
+    openWalletModal: function (state) {
       // TODO: Close all other modals.
-      state.walletModalActive = true
-    }
+      state.walletModalActive = true;
+    },
   },
   actions: {},
   modules: {},

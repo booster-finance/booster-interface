@@ -1,7 +1,7 @@
 <template>
   <List class="milestone-list" :items="milestones" :max="100">
     <template v-slot:header>
-      <h3>Milestone List</h3>
+      <h3>Milestones</h3>
     </template>
 
     <template v-slot:items>
@@ -10,11 +10,10 @@
         v-for="(milestone, index) of milestones"
         :key="`milestone-${index}`"
         :value="milestone"
+        :name="getName(index, milestone.length)"
         @remove="() => $emit('remove', index)"
-        @addObjective="() => $emit('addObjective', index)"
-        @removeObjective="
-          (objectiveIndex) => $emit('removeObjective', index, objectiveIndex)
-        "
+        @allocChanged="(value) => $emit('allocChanged', index, value)"
+        @dateChanged="(value) => $emit('dateChanged', index, value)"
       />
     </template>
   </List>
@@ -25,6 +24,7 @@ import { defineComponent } from "vue";
 import Milestone from "./Milestone.vue";
 import List from "./List.vue";
 
+import MilestoneModel from "../model/Milestone";
 export default defineComponent({
   name: "MilestoneList",
   components: { Milestone, List },
@@ -34,6 +34,11 @@ export default defineComponent({
       default: function () {
         return [];
       },
+    },
+  },
+  methods: {
+    getName: function (index: number, length: number): string {
+      return MilestoneModel.getName(index, length);
     },
   },
 });

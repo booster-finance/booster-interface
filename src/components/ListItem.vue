@@ -1,17 +1,11 @@
 <template>
   <div class="list-item">
     <header @click="() => (this.collapsed = !this.collapsed)">
-      <slot name="header" />
+      <slot />
       <button id="remove-btn" @click.stop="() => $emit('remove')">
         Remove
       </button>
     </header>
-    <div v-if="!collapsed" class="body">
-      <slot name="body" />
-    </div>
-    <footer>
-      <slot name="footer" />
-    </footer>
   </div>
 </template>
 
@@ -27,7 +21,6 @@ export default defineComponent({
   },
 });
 </script>
-
 
 <style lang="scss">
 .list-item header > * {

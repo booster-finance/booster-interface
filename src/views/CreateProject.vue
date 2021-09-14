@@ -1,80 +1,78 @@
 <template>
   <div class="create-project">
-    <div class="left">
-      <h3>Title</h3>
-      <input v-model="title" name="title" type="text" />
-      <h3>Description</h3>
-      <textarea
-        name="description"
-        id=""
-        cols="30"
-        rows="10"
-        maxlength="768"
-        v-model="description"
-      ></textarea>
-      <h3>Link</h3>
-      <input v-model="link" name="link" type="text" />
-    </div>
-    <div class="right">
-      <tier-list :tiers="tiers" @add="addTier" @remove="removeTier" />
-      <MilestoneList
-        :milestones="milestones"
-        @add="addMilestone"
-        @remove="removeMilestone"
-        @addObjective="addObjective"
-        @removeObjective="removeObjective"
-      />
+    <h3>Title</h3>
+    <input v-model="title" name="title" type="text" />
+    <h3>Description</h3>
+    <textarea
+      name="description"
+      id=""
+      cols="30"
+      rows="10"
+      maxlength="768"
+      v-model="description"
+    ></textarea>
+    <h3>Funding Goal</h3>
+    <input type="number">
+    <h3>Link</h3>
+    <input v-model="link" name="link" type="text" />
+    <tier-list :tiers="tiers" @add="addTier" @remove="removeTier" />
+    <MilestoneList
+      :milestones="milestones"
+      @add="addMilestone"
+      @remove="removeMilestone"
+      @allocChanged="allocChanged"
+      @dateChanged="dateChanged"
+    />
+
+    <div class="submit">
+      <div
+        id="validateBtn"
+        class="button"
+        v-if="!createReady"
+        @click="validate"
+      >
+        Validate
+      </div>
+      <div id="createBtn" class="button" v-if="createReady">Create</div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Project, ProjectPhase, Reward } from "../model/Project";
+import { Project, ProjectPhase } from "../model/Project";
 import TierList from "../components/TierList.vue";
 import MilestoneList from "@/components/MilestoneList.vue";
-
-const Sticker: Reward = {
-  title: "Sticker",
-  description: "A sticker with the project Logo.",
-};
-const theGame: Reward = {
-  title: "The Game",
-  description: "A digital copy of the game.",
-};
-
-const thePhysicalGame: Reward = {
-  title: "The Game",
-  description: "A tangible copy of the game.",
-};
-
-const betaAccess: Reward = {
-  title: "Beta Access",
-  description: "Access to the beta version of the game.",
-};
 
 const gaming: Project = {
   id: 0,
   title: "Fred the Knight",
-  status: ProjectPhase.Edit,
+  status: ProjectPhase.Investment,
+  fundingGoal: 3000,
   description:
     "It's the best point and click adventure ever made. Fred the Knight has to find his big love Princess Penelope.",
   link: "https://fred-the-game.com",
   tiers: [
     {
+      backers: 20,
+      maxBackers: 100,
       cost: 10,
-      rewards: [Sticker],
+      // rewards: [Sticker],
     },
     {
+      backers: 20,
+      maxBackers: 50,
       cost: 50,
-      rewards: [Sticker, theGame],
+      // rewards: [Sticker, theGame],
     },
     {
+      backers: 2,
+      maxBackers: 10,
       cost: 150,
-      rewards: [Sticker, thePhysicalGame, betaAccess],
+      // rewards: [Sticker, thePhysicalGame, betaAccess],
     },
   ],
-  milestones: [{ title: "Test", objectives: ["Eat pommes", "Have fun"] }],
+  milestones: [],
 };
 
 export default defineComponent({
@@ -85,50 +83,62 @@ export default defineComponent({
   },
   methods: {
     addTier() {
-      this.$data.tiers.push({ cost: 100, rewards: [] });
+      this.$data.tiers.push({
+        backers: 0,
+        maxBackers: 10,
+        cost: 100,
+        // rewards: [],
+      });
     },
     removeTier(index: number) {
       this.$data.tiers.splice(index, 1);
     },
     addMilestone() {
       this.$data.milestones.push({
-        title: "Unnamed Milestone",
-        objectives: [],
+        releaseDate: -1,
+        releasePercentage: 0,
+        releaseAlloc: 1,
       });
+      this.updateMilestoneAlloc();
     },
     removeMilestone(index: number) {
       this.$data.milestones.splice(index, 1);
     },
-    addObjective(index: number) {
-      this.$data.milestones[index].objectives.push("");
-      this.$data.milestones[index];
+    allocChanged(index: number, alloc: number) {
+      let milestone = this.milestones[index];
+      milestone.releaseAlloc = alloc;
+      this.milestones.splice(index, 1, milestone);
+      this.updateMilestoneAlloc();
     },
-    removeObjective(milestoneIdx: number, objectiveIdx: number) {
-      this.$data.milestones[milestoneIdx].objectives.splice(objectiveIdx, 1);
+    dateChanged(index: number, date: number) {
+      let milestone = this.milestones[index];
+      milestone.releaseDate = date;
+      this.milestones.splice(index, 1, milestone);
     },
-    // validateAndSubmit: function () {
-    //   let idStr = localStorage.getItem("project-id") || "0";
-    //   let id = parseInt(idStr);
-    //   let projectStr = localStorage.getItem("projects") || "";
-    //   let projects = JSON.parse(projectStr);
+    updateMilestoneAlloc() {
+      let totalReleaseAlloc = 0;
+      this.milestones.forEach((milestone) => {
+        totalReleaseAlloc += milestone.releaseAlloc;
+        console.log("TOTAL REL ALL:", totalReleaseAlloc);
+      });
 
-    //   id++;
-    //   this.$data.id = id;
-    //   projects[id] = this.$data;
+      console.log(totalReleaseAlloc);
 
-    //   localStorage.setItem("project-id", JSON.stringify(id));
-    //   localStorage.setItem("projects", JSON.stringify(projects));
+      this.milestones.forEach((milestone) => {
+        milestone.releasePercentage =
+          milestone.releaseAlloc / totalReleaseAlloc;
+      });
 
-    //   this.$router.push({ name: "EditProject", params: { id } });
-    // },
+      this.milestones.splice(0, this.milestones.length, ...this.milestones);
+    },
   },
 });
 </script>
 
 <style lang="scss" scoped>
 .create-project {
-  $border: 1px solid rgb(224, 224, 224);
   display: flex;
+  flex-direction: column;
   margin-bottom: 50vh;
 
   border: $border;
@@ -141,6 +151,13 @@ export default defineComponent({
 
   button {
     margin-top: 50px;
+  }
+}
+
+.submit {
+  display: flex;
+  > * {
+    flex: 1;
   }
 }
 </style>

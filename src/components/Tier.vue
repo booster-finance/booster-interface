@@ -1,23 +1,23 @@
 <template>
   <list-item :key="`tier-${index}`">
-    <template v-slot:header>
-      <img :src="`tiers/${image}`" alt="" />
-      <h4>{{ name }}</h4>
-      <input @click.stop :value="value.cost" type="number" step="0.1" min="0" />
-    </template>
+    <img :src="`tiers/${image}`" alt="" />
+    <h4>{{ name }}</h4>
+    <div class="backers">
+      <font-awesome-icon class="icon" :icon="['fas', 'user']" />
 
-    <template v-slot:body>
-      <ul>
-        <li v-for="(reward, rindex) of value.rewards" :key="`tier-${rindex}`">
-          <b>{{ reward.title }}:</b> {{ reward.description }}
-        </li>
-      </ul>
-
+      <input type="number" step="1" min="0" :max="value.maxBackers" />
+    </div>
+    <div class="cost">
       <input
-        style="width: 100%; box-sizing: border-box"
-        placeholder="Add reward ..."
+        class="cost"
+        @click.stop
+        :value="value.cost"
+        type="number"
+        step="0.1"
+        min="0"
       />
-    </template>
+      <span>$</span>
+    </div>
   </list-item>
 </template>
 
@@ -44,13 +44,53 @@ export default defineComponent({
 $border: 1px solid rgb(224, 224, 224);
 
 img {
-  flex: 0;
+  display: block;
+  flex: 0 0 40px;
   margin: 0 auto;
   height: 26px;
-  width: 40px;
+  width: 60px;
   object-fit: contain;
   padding: 10px;
   // background-color: rgb(247, 247, 247);
   border-right: $border;
+}
+
+.backers {
+  position: relative;
+  // display: flex;
+  align-items: center;
+  @include input();
+  padding: 0;
+
+  svg {
+    position: absolute;
+    left: 10px;
+    color: $gray-70;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  input {
+    margin: 0;
+    border: none;
+    width: 100%;
+  }
+}
+
+input {
+  padding-left: 40px;
+  box-sizing: border-box;
+}
+
+.cost {
+  position: relative;
+
+  span {
+    top: 50%;
+    position: absolute;
+    left: 10px;
+    line-height: 0;
+    font-weight: bold;
+  }
 }
 </style>

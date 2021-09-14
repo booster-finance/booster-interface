@@ -45,15 +45,15 @@ import InfoBox from "../components/InfoBox.vue";
   methods: {
     getClassFromStatus: function (status: ProjectPhase) {
       switch (status) {
+        case ProjectPhase.Completed:
+          return "comüplete";
+        case ProjectPhase.Working:
+          return "work";
+        case ProjectPhase.Voting:
+          return "vote";
         case ProjectPhase.Investment:
-          return "invest";
-        case ProjectPhase.Payout:
-          return "payout";
-        case ProjectPhase.Spending:
-          return "spend";
-        case ProjectPhase.Edit:
         default:
-          return "edit";
+          return "invest";
       }
     },
   },
