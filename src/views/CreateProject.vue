@@ -1,7 +1,11 @@
 <template>
   <div class="create-project">
+    <header>
+      <h2>Create New Project</h2>
+    </header>
+
     <h3>Title</h3>
-    <input v-model="title" name="title" type="text" />
+    <input v-model="project.title" name="title" type="text" />
     <h3>Description</h3>
     <textarea
       name="description"
@@ -9,31 +13,55 @@
       cols="30"
       rows="10"
       maxlength="768"
-      v-model="description"
+      v-model="project.description"
     ></textarea>
     <h3>Funding Goal</h3>
-    <input type="number">
+    <input type="number" v-model="project.fundingGoal" />
     <h3>Link</h3>
-    <input v-model="link" name="link" type="text" />
-    <tier-list :tiers="tiers" @add="addTier" @remove="removeTier" />
+    <input v-model="project.link" name="link" type="text" />
+
+    <!-- Tiers -->
+    <tier-list
+      :tiers="project.tiers"
+      @changed="tierChanged"
+      @add="addTier"
+      @remove="removeTier"
+    />
+
+    <p class="errorous" :class="{ correct: fundedProperly }">
+      Total Allocation: {{ totalFunding }} / {{ project.fundingGoal }}
+    </p>
+
+    <!-- Milestones -->
     <MilestoneList
-      :milestones="milestones"
+      :milestones="project.milestones"
+      :totalFunding="totalFunding"
       @add="addMilestone"
       @remove="removeMilestone"
       @allocChanged="allocChanged"
       @dateChanged="dateChanged"
     />
 
+    <p class="errorous" :class="{ correct: allocationCorrect }">
+      Total Allocation: {{ fullAlloc }}% / 100%
+    </p>
+
+    <error v-if="errors && errors.length > 0">
+      <p v-for="(error, errorIdx) of errors" :key="'error-' + errorIdx">
+        {{ error }}
+      </p>
+    </error>
+
     <div class="submit">
+      <div id="validateBtn" class="button" @click="validate">Validate</div>
       <div
-        id="validateBtn"
+        id="createBtn"
+        :class="{ disabled: !validated }"
         class="button"
-        v-if="!createReady"
-        @click="validate"
+        @click="create"
       >
-        Validate
+        Create
       </div>
-      <div id="createBtn" class="button" v-if="createReady">Create</div>
     </div>
   </div>
 </template>
@@ -43,6 +71,8 @@ import { defineComponent } from "vue";
 import { Project, ProjectPhase } from "../model/Project";
 import TierList from "../components/TierList.vue";
 import MilestoneList from "@/components/MilestoneList.vue";
+import Error from "@/components/Error.vue";
+import Tier from "@/model/Tiers";
 
 const gaming: Project = {
   id: 0,
@@ -57,33 +87,135 @@ const gaming: Project = {
       backers: 20,
       maxBackers: 100,
       cost: 10,
-      // rewards: [Sticker],
     },
     {
       backers: 20,
       maxBackers: 50,
       cost: 50,
-      // rewards: [Sticker, theGame],
     },
     {
       backers: 2,
       maxBackers: 10,
       cost: 150,
-      // rewards: [Sticker, thePhysicalGame, betaAccess],
     },
   ],
-  milestones: [],
+  milestones: [
+    {
+      releaseDate: Date.now() + 1000000000,
+      releasePercentage: 10,
+    },
+    {
+      releaseDate: Date.now() + 4000000000,
+      releasePercentage: 20,
+    },
+    {
+      releaseDate: Date.now() + 6000000000,
+      releasePercentage: 50,
+    },
+    {
+      releaseDate: Date.now() + 10000000000,
+      releasePercentage: 20,
+    },
+  ],
 };
 
 export default defineComponent({
-  components: { TierList, MilestoneList },
+  components: { TierList, MilestoneList, Error },
 
   data: function () {
-    return gaming;
+    return {
+      project: gaming,
+      validated: false,
+      created: false,
+      errors: [],
+    };
+  },
+  computed: {
+    fundedProperly: function () {
+      return this.totalFunding >= this.project.fundingGoal;
+    },
+    allocationCorrect: function () {
+      return this.fullAlloc == 100;
+    },
+    totalFunding: function () {
+      return this.project.tiers.reduce((prev, tier) => {
+        return prev + tier.maxBackers * tier.cost;
+      }, 0);
+    },
+    fullAlloc() {
+      if (this.project.milestones.length == 0) return 0;
+      return this.project.milestones.reduce((prev, current) => {
+        return prev + current.releasePercentage;
+      }, 0);
+    },
   },
   methods: {
+    validate() {
+      this.errors = [];
+      if (!this.fundedProperly) {
+        this.errors.push(
+          "Tiers must provide higher funding than the funding goal!"
+        );
+      }
+
+      if (!this.allocationCorrect) {
+        this.errors.push("Make sure the allocation sums up to 100!");
+      }
+
+      this.project.tiers.forEach((tier, idx) => {
+        if (tier.maxBackers <= 0) {
+          this.errors.push(
+            `Tier must have at least 1 backer (${Tier.getName(
+              idx,
+              this.project.tiers.length
+            )})`
+          );
+        }
+      });
+
+      this.project.tiers.forEach((tier, idx) => {
+        if (tier.cost <= 0) {
+          this.errors.push(
+            `Tier cost must be greater than 0$ (${Tier.getName(
+              idx,
+              this.project.tiers.length
+            )})`
+          );
+        }
+      });
+
+      this.project.milestones.forEach((milestone, idx) => {
+        if (milestone.releasePercentage <= 0) {
+          this.errors.push(
+            `Milestone must be greater than 0 of (Milestone #${idx + 1})`
+          );
+        }
+      });
+
+      this.project.milestones.forEach((milestone, idx) => {
+        if (milestone.releaseDate - Date.now() <= 0) {
+          this.errors.push(
+            `Milestone release date must be in the future of (Milestone #${
+              idx + 1
+            })`
+          );
+        }
+      });
+
+      if (this.errors.length == 0) this.validated = true;
+
+      return this.errors.length == 0;
+    },
+    create() {
+      if (this.validate()) {
+        this.created = true;
+      } else {
+        this.validated = false;
+        this.created = false;
+      }
+    },
     addTier() {
-      this.$data.tiers.push({
+      this.$data.project.tiers.push({
         backers: 0,
         maxBackers: 10,
         cost: 100,
@@ -91,45 +223,30 @@ export default defineComponent({
       });
     },
     removeTier(index: number) {
-      this.$data.tiers.splice(index, 1);
+      this.$data.project.tiers.splice(index, 1);
     },
     addMilestone() {
-      this.$data.milestones.push({
+      this.$data.project.milestones.push({
         releaseDate: -1,
         releasePercentage: 0,
-        releaseAlloc: 1,
       });
-      this.updateMilestoneAlloc();
     },
     removeMilestone(index: number) {
-      this.$data.milestones.splice(index, 1);
+      this.$data.project.milestones.splice(index, 1);
     },
     allocChanged(index: number, alloc: number) {
-      let milestone = this.milestones[index];
-      milestone.releaseAlloc = alloc;
-      this.milestones.splice(index, 1, milestone);
-      this.updateMilestoneAlloc();
+      // console.log(index, alloc)
+      let milestone = this.project.milestones[index];
+      milestone.releasePercentage = alloc;
+      this.project.milestones.splice(index, 1, milestone);
     },
     dateChanged(index: number, date: number) {
-      let milestone = this.milestones[index];
+      let milestone = this.project.milestones[index];
       milestone.releaseDate = date;
-      this.milestones.splice(index, 1, milestone);
+      this.project.milestones.splice(index, 1, milestone);
     },
-    updateMilestoneAlloc() {
-      let totalReleaseAlloc = 0;
-      this.milestones.forEach((milestone) => {
-        totalReleaseAlloc += milestone.releaseAlloc;
-        console.log("TOTAL REL ALL:", totalReleaseAlloc);
-      });
-
-      console.log(totalReleaseAlloc);
-
-      this.milestones.forEach((milestone) => {
-        milestone.releasePercentage =
-          milestone.releaseAlloc / totalReleaseAlloc;
-      });
-
-      this.milestones.splice(0, this.milestones.length, ...this.milestones);
+    tierChanged(index: number, tier: Tier) {
+      this.project.tiers.splice(index, 1, tier);
     },
   },
 });
@@ -146,7 +263,6 @@ export default defineComponent({
 
   > * {
     flex: 1;
-    margin: 20px;
   }
 
   button {
@@ -156,8 +272,31 @@ export default defineComponent({
 
 .submit {
   display: flex;
+  margin-top: 30px;
+
   > * {
     flex: 1;
   }
+
+  > *:not(:last-child) {
+    margin-right: 10px;
+  }
+}
+
+.errorous {
+  color: $red;
+  font-weight: bold;
+  &.correct {
+    color: $green;
+  }
+}
+
+#validateBtn,
+#createBtn {
+  padding: 20px;
+}
+
+textarea {
+  resize: none;
 }
 </style>

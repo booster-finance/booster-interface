@@ -2,15 +2,15 @@ import { createStore } from "vuex";
 
 export default createStore({
   state: {
-    walletModalActive: false,
+    wallet: null,
+    network: null,
   },
   mutations: {
-    closeWalletModal: function (state) {
-      state.walletModalActive = false;
+    connectWallet(state, wallet) {
+      state.wallet = wallet;
     },
-    openWalletModal: function (state) {
-      // TODO: Close all other modals.
-      state.walletModalActive = true;
+    chainChanged(state, network) {
+      state.network = network;
     },
   },
   actions: {},

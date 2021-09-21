@@ -36,23 +36,19 @@ const gaming: Project = {
   milestones: [
     {
       releaseDate: Date.now(),
-      releasePercentage: 0.5,
-      releaseAlloc: 10,
+      releasePercentage: 10,
     },
     {
-      releaseDate: Date.now() + 1000,
-      releasePercentage: 0.5,
-      releaseAlloc: 10,
+      releaseDate: Date.now() + 4000000000,
+      releasePercentage: 20,
     },
     {
-      releaseDate: Date.now() + 1000,
-      releasePercentage: 0.5,
-      releaseAlloc: 10,
+      releaseDate: Date.now() + 6000000000,
+      releasePercentage: 50,
     },
     {
-      releaseDate: Date.now() + 1000,
-      releasePercentage: 0.5,
-      releaseAlloc: 10,
+      releaseDate: Date.now() + 10000000000,
+      releasePercentage: 30,
     },
   ],
 };
@@ -79,14 +75,3 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss">
-.home {
-  // padding: 50px 70px;
-}
-
-.home > .project-preview {
-  max-width: 512px;
-  margin: 20px;
-  //   height: 720px;
-}
-</style>

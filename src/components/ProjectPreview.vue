@@ -16,11 +16,12 @@
       <!-- TODO: Here we need some kind of ID for the project  -->
       <h3 v-if="funding">Tiers</h3>
 
-      <div id="tier-list" v-if="funding">
+      <div id="tier-list" v-if="funding && !tier">
         <div
           class="tier-select"
           v-for="(tier, index) of value.tiers"
           v-bind:key="`tier-${index}`"
+          @click="fundTier(tier)"
         >
           <img :src="getTierImage(index)" alt="Image of tier." />
           <p>{{ getTierName(index) }}</p>
@@ -49,21 +50,19 @@
         <div class="button" id="yes">Yes</div>
       </div>
 
-      <div id="withdraw" v-if="!funding && !completed">
-        <h3>Your contribution</h3>
-        <div class="tier-select">
-          <img :src="getTierImage(1)" alt="Image of tier." />
-          <p>{{ getTierName(1) }}</p>
-          <p>{{ value.tiers[1].cost }} $</p>
-
-          <div class="button">Burn To Withdraw Remaining Funds</div>
-        </div>
-      </div>
-
       <div class="info" v-if="completed">
         <font-awesome-icon class="icon" :icon="['fas', 'info-circle']" />
-
         This project has been completed!
+      </div>
+    </div>
+
+    <div id="withdraw" v-if="(tier && funding) || completed">
+      <h3>Your contribution</h3>
+      <div class="tier-select">
+        <img :src="getTierImage(1)" alt="Image of tier." />
+        <p>{{ getTierName(1) }}</p>
+        <p>{{ value.tiers[1].cost }} $</p>
+        <div class="button" @click="() => (tier = null)">Withdraw Funds</div>
       </div>
     </div>
   </div>
@@ -81,6 +80,11 @@ export default defineComponent({
   name: "ProjectPreview",
   props: {
     value: Object as PropType<Project>,
+  },
+  data: function () {
+    return {
+      tier: null,
+    };
   },
   components: { Slider, MilestoneSlider },
   computed: {
@@ -126,6 +130,9 @@ export default defineComponent({
     changeStatus() {
       this.$emit("changeStatus");
     },
+    fundTier(tier) {
+      this.tier = tier;
+    },
   },
 });
 </script>
@@ -154,13 +161,6 @@ h2 {
   border-bottom: $border;
 }
 
-.project-preview {
-  border: $border;
-  border-radius: 20px;
-  padding: 20px;
-  position: relative;
-}
-
 #tier-list > *:not(:last-child) {
   margin-bottom: 10px;
 }
@@ -174,7 +174,7 @@ h2 {
   border: $border;
   border-radius: 10px;
   align-items: center;
-  padding: 10px;
+  padding: 0 10px;
   cursor: pointer;
   overflow: hidden;
 
@@ -187,7 +187,7 @@ h2 {
   }
 
   img {
-    height: 42px;
+    height: 32px;
     width: 42px;
     object-fit: contain;
   }

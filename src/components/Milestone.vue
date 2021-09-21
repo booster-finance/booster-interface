@@ -1,21 +1,26 @@
 <template>
   <list-item>
-    <span>
+    <div class="text">
       {{ name }}
-    </span>
-    <p>{{ (value.releasePercentage * 100).toFixed(2) || "-" }} %</p>
+    </div>
+    <div class="text">
+      {{
+        totalFunding
+          ? ((totalFunding * value.releasePercentage) / 100).toFixed(2)
+          : 0
+      }}
+      $
+    </div>
     <input
       type="number"
-      value="value.releaseAlloc"
+      :value="value.releasePercentage"
       step="1"
       min="0"
       @input="allocChanged"
     />
     <input
       type="date"
-      value="value.releaseDate"
-      name=""
-      id=""
+      :value="new Date(value.releaseDate).toISOString().slice(0, 10)"
       @input="dateChanged"
     />
   </list-item>
@@ -31,6 +36,7 @@ export default defineComponent({
   name: "Milestone",
   props: {
     name: String,
+    totalFunding: Number,
     value: {
       type: Object as PropType<Milestone>,
       required: true,
@@ -43,23 +49,43 @@ export default defineComponent({
     },
     dateChanged: function (event: InputEvent) {
       let target = event.target as HTMLInputElement;
-      this.$emit("allocChanged", parseInt(target.value));
+      this.$emit("dateChanged", Date.parse(target.value));
     },
   },
 });
 </script>
 
-<style lang="scss">
-.list .body input {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  margin-bottom: 5px;
-}
-</style>
 
 <style lang="scss" scoped>
 $border: 1px solid rgb(224, 224, 224);
+
+.text {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.list-item {
+  padding: 5px;
+
+  > * {
+    height: 37px;
+    box-sizing: border-box;
+  }
+
+  > *:not(:last-child) {
+    margin-right: 5px;
+  }
+}
+
+input {
+  width: 75px;
+}
+
+input[type="date"] {
+  width: 140px;
+  padding-right: 0;
+}
 
 .input {
   display: flex;

@@ -1,11 +1,7 @@
 <template>
   <div class="list-item">
-    <header @click="() => (this.collapsed = !this.collapsed)">
-      <slot />
-      <button id="remove-btn" @click.stop="() => $emit('remove')">
-        Remove
-      </button>
-    </header>
+    <slot />
+    <button class="remove-btn" @click.stop="() => $emit('remove')">Remove</button>
   </div>
 </template>
 
@@ -32,17 +28,9 @@ export default defineComponent({
 <style lang="scss" scoped>
 $border: 1px solid rgb(224, 224, 224);
 
-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-bottom: $border;
-  cursor: pointer;
-  user-select: none;
-}
 
-#remove-btn {
-  margin-right: 5px;
+
+.remove-btn {
   flex: 0;
 }
 
@@ -51,14 +39,16 @@ header {
 }
 
 .list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
   // padding: 20px;
   border: 1px solid #dbdbdb;
   border-radius: 5px;
   margin-bottom: 5px;
 
-  h4 {
-    margin: 0;
-  }
 
   ul {
     padding-inline-start: 25px;

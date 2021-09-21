@@ -1,7 +1,6 @@
 export interface Milestone {
   releaseDate: number;
   releasePercentage: number;
-  releaseAlloc: number;
 }
 
 export interface Project {
@@ -26,7 +25,6 @@ export interface Tier {
   backers: number;
   maxBackers: number;
   cost: number;
-  // rewards: Reward[];
 }
 
 export interface Reward {

@@ -1,25 +1,20 @@
 <template>
   <div class="navigation">
     <nav>
-      <router-link to="/" class="nav-item">Home</router-link>
-      <router-link :to="{ name: 'Dashboard' }" class="nav-item"
-        >Dashboard</router-link
-      >
+      <router-link to="/" class="nav-item">Projects</router-link>
+      <router-link :to="{ name: 'Dashboard' }" class="nav-item">
+        Create
+      </router-link>
     </nav>
-    <!-- <footer>$BOOST: 0.12% <span class="gain">(+10.23%)</span></footer> -->
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Options } from "vue-class-component";
-import Header from "./Header.vue";
+import { defineComponent } from "@vue/runtime-core";
 
-@Options({
-  components: {
-    Header,
-  },
-})
-export default class Navigation extends Vue {}
+export default defineComponent({
+  name: "Navigation",
+});
 </script>
 
 <style lang="scss" scoped>
@@ -29,15 +24,15 @@ nav {
   min-width: 320px;
 
   a {
-    display: block;
+    display: inline-block;
     padding: 5px 20px;
     margin: 5px 10px;
     font-weight: bold;
     text-decoration: none;
-    color: black;
+    color: $black;
+    border: none;
   }
 }
-
 
 .gain {
   color: greenyellow;

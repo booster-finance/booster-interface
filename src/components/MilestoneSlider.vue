@@ -7,6 +7,10 @@
         class="stone"
       >
         {{ idx + 1 }}
+
+        <span class="time">
+          {{ new Date(milestone.releaseDate).toLocaleDateString() }}
+        </span>
       </div>
     </div>
 
@@ -34,6 +38,17 @@ $size: 32px;
   position: relative;
   user-select: none;
   height: $size;
+  margin-left: 30px;
+  margin-right: 30px;
+  margin-bottom: 40px;
+  margin-top: 20px;
+
+
+}
+
+.time {
+  position: absolute;
+  top: 35px
 }
 
 .milestone-line {

@@ -1,9 +1,6 @@
 <template>
   <Header />
   <main>
-    <div class="nav">
-      <navigation />
-    </div>
     <div class="content">
       <router-view />
     </div>
@@ -13,7 +10,6 @@
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
 import Navigation from "@/components/Navigation.vue"; // @ is an alias to /src
-// import Modal from "./components/Modal.vue";
 import Header from "./components/Header.vue";
 
 @Options({
@@ -62,6 +58,22 @@ body {
   overflow-y: auto;
 }
 
+.content {
+  display: flex;
+  justify-content: center;
+}
+
+.create-project,
+.dashboard,
+.project-preview {
+  width: 720px;
+  max-width: 100%;
+  border: $border;
+  border-radius: 20px;
+  padding: 20px;
+  position: relative;
+}
+
 main {
   display: flex;
   width: 100%;
@@ -90,7 +102,7 @@ main {
 
 .content {
   flex: 1;
-  margin: 10px 100px;
+  margin: 10px 10px;
 }
 .button {
   @include interactive();
@@ -112,6 +124,21 @@ main {
   // max-height: 100px;
   // box-shadow: 1px 1px 3px rgba($color: #000, $alpha: 0.3);
 
+  &.disabled {
+    background-color: whitesmoke;
+    color: gray;
+    cursor: not-allowed;
+    pointer-events: none;
+
+    &:hover {
+      background-color: whitesmoke;
+    }
+
+    &:active {
+      box-shadow: none;
+    }
+  }
+
   &:hover {
     background-color: lighten($primary, 3%);
   }
@@ -127,7 +154,7 @@ main {
   background-color: $gray-30;
   color: $white;
   font-weight: bold;
-  text-align: center
+  text-align: center;
 }
 
 .nav-item,

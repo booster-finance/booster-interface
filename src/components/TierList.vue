@@ -13,6 +13,7 @@
         :image="getTierImage(index)"
         :name="getTierName(index)"
         @remove="() => $emit('remove', index)"
+        @changed="(tier) => tierChanged(tier, index)"
       />
     </template>
   </List>
@@ -41,6 +42,9 @@ export default defineComponent({
     },
     getTierImage: function (idx: number): string {
       return TierModel.getImage(idx, this.tiers.length);
+    },
+    tierChanged(tier, index) {
+      this.$emit("changed", index, tier);
     },
   },
 });

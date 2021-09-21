@@ -8,6 +8,7 @@
       <Milestone
         class="milestone"
         v-for="(milestone, index) of milestones"
+        :totalFunding="totalFunding"
         :key="`milestone-${index}`"
         :value="milestone"
         :name="getName(index, milestone.length)"
@@ -29,6 +30,7 @@ export default defineComponent({
   name: "MilestoneList",
   components: { Milestone, List },
   props: {
+    totalFunding: Number,
     milestones: {
       type: Array,
       default: function () {

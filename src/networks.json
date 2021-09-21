@@ -1,0 +1,11 @@
+[
+    {
+        "name": "Harmony",
+        "chainId": 1666600000
+    },
+    {
+        "name": "Harmony Testnet",
+        "chainId": 1666700000,
+        "default": true
+    }
+]

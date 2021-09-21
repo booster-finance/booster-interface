@@ -1,19 +1,23 @@
 <template>
-  <list-item :key="`tier-${index}`">
+  <list-item class="tier-input">
     <img :src="`tiers/${image}`" alt="" />
-    <h4>{{ name }}</h4>
+    <div class="name">{{ name }}</div>
     <div class="backers">
       <font-awesome-icon class="icon" :icon="['fas', 'user']" />
-
-      <input type="number" step="1" min="0" :max="value.maxBackers" />
+      <input
+        type="number"
+        step="1"
+        min="0"
+        :value="value.maxBackers"
+        @input="backersChanged"
+      />
     </div>
     <div class="cost">
       <input
-        class="cost"
-        @click.stop
         :value="value.cost"
+        @input="costChanged"
         type="number"
-        step="0.1"
+        step="5"
         min="0"
       />
       <span>$</span>
@@ -37,22 +41,76 @@ export default defineComponent({
       required: true,
     },
   },
+  methods: {
+    backersChanged: function (event) {
+      this.tierChanged({
+        cost: this.value.cost,
+        maxBackers: event.target.value,
+      });
+    },
+    costChanged: function (event) {
+      this.tierChanged({
+        cost: event.target.value,
+        maxBackers: this.value.maxBackers,
+      });
+    },
+    tierChanged: function ({ cost = null, maxBackers = null }) {
+      this.$emit("changed", {
+        cost,
+        maxBackers,
+        backers: 0,
+      });
+    },
+  },
 });
 </script>
 
+<style lang="scss">
+.tier-list .remove-btn {
+  margin-right: 5px;
+}
+</style>
+
 <style lang="scss" scoped>
 $border: 1px solid rgb(224, 224, 224);
+
+.backers,
+.cost {
+  position: relative;
+}
+
+.cost input {
+  width: 100%;
+  min-width: 0;
+}
+
+.name,
+.backers,
+.cost {
+  flex: 1;
+  margin: 5px;
+}
+
+.name {
+  margin-left: 10px;
+}
+
+h4 {
+  margin: 0;
+  display: block;
+}
 
 img {
   display: block;
   flex: 0 0 40px;
   margin: 0 auto;
-  height: 26px;
+  height: 20px;
   width: 60px;
   object-fit: contain;
-  padding: 10px;
+  // padding: 10px;
   // background-color: rgb(247, 247, 247);
   border-right: $border;
+  margin-right: 5px;
 }
 
 .backers {

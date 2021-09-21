@@ -1,5 +1,5 @@
 <template>
-  <div class="content">
+  <div class="dashboard">
     <InfoBox v-if="projects.length == 0">
       You created no projects so far.</InfoBox
     >

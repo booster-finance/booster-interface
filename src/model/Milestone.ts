@@ -3,7 +3,7 @@ import { Milestone as MilestoneModel } from "../model/Project";
 export default class Milestone {
   static getName(index: number, length: number): string {
     const numberLength = Math.ceil(length + 1 / 10);
-    return `Milestone #${index.toString().padStart(numberLength, "0")}`;
+    return `Milestone #${(index+1).toString().padStart(numberLength, "0")}`;
   }
 
   static applyValidation(

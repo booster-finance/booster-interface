@@ -9,13 +9,14 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@metamask/detect-provider": "^1.2.0",
     "core-js": "^3.6.5",
+    "ethers": "^5.4.7",
     "vue": "^3.0.0",
     "vue-class-component": "^8.0.0-0",
     "vue-material-design-icons": "^4.12.1",
     "vue-router": "^4.0.0-0",
-    "vuex": "^4.0.0-0",
-    "web3": "^1.5.2"
+    "vuex": "^4.0.0-0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",

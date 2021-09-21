@@ -45,18 +45,20 @@ export default defineComponent({
   height: 100px;
 }
 
+$height: 10px;
+
 #slider {
   display: block;
-  height: 20px;
+  height: $height;
   width: 100%;
   background-color: whitesmoke;
-  border-radius: 10px;
+  border-radius: $height/2;
   box-shadow: inset 1px 1px 3px rgba(#333, 0.1);
   //   overflow: hidden;
 }
 
 .slider-fill {
-  background: rgb(174, 181, 184);
+  background: $primary;
   height: 100%;
   width: 50%;
   box-shadow: 0 0 3px rgba(#333, 0.1);
