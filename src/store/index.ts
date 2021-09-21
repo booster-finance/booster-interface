@@ -4,14 +4,18 @@ export default createStore({
   state: {
     wallet: null,
     network: null,
+    address: null,
   },
   mutations: {
     connectWallet(state, wallet) {
       state.wallet = wallet;
     },
-    chainChanged(state, network) {
+    setNetwork(state, network) {
       state.network = network;
     },
+    setAddress(state, address){
+      state.address = address;
+    }
   },
   actions: {},
   modules: {},

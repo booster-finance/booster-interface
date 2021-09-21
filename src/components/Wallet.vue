@@ -1,6 +1,6 @@
 <template>
   <div class="wallet">
-    <div class="button-wrapper">
+    <div class="button-wrapper" v-if="address && network">
       <div class="copy-text">Copied To Clipboard</div>
       <input
         v-if="address"
@@ -59,6 +59,12 @@ declare global {
 export default defineComponent({
   name: "Wallet",
   computed: {
+    network: function () {
+      return this.$store.state.network;
+    },
+    address: function () {
+      return this.$store.state.address;
+    },
     defaultNetwork: function () {
       let defaultNetwork = networks.find((obj) => obj.default);
       if (defaultNetwork) {
@@ -76,27 +82,22 @@ export default defineComponent({
       return add.substring(0, 6) + "..." + add.substring(add.length - 4);
     },
   },
-  data(): { address: string; network: number } {
-    return {
-      address: "" as string,
-      network: -1 as number,
-    };
-  },
   mounted: function () {
     if (this.metaMaskInstalled) {
-      console.log("ADD HANDLER", window.ethereum);
-      this.network = networks.find(
+      let network = networks.find(
         (obj) => obj.chainId == window.ethereum.chainId
       );
 
+      this.$store.commit("setNetwork", network);
       window.ethereum.on("chainChanged", () => {
-        this.network = networks.find(
+        let network = networks.find(
           (obj) => obj.chainId == window.ethereum.chainId
         );
+        this.$store.commit("setNetwork", network);
       });
 
       window.ethereum.on("accountsChanged", (accounts) => {
-        this.address = accounts[0];
+        this.$store.commit("setAccount", accounts[0]);
       });
     }
   },
@@ -125,24 +126,9 @@ export default defineComponent({
         console.log(provider);
 
         const signer = provider.getSigner();
-        this.address = await signer.getAddress();
-        console.log(this.address);
+        let address = await signer.getAddress();
 
-        // this.$store.
-
-        //   const web3: Web3 = new Web3(
-        //     Web3.givenProvider || "ws://localhost:8545"
-        //   );
-
-        //   const accounts = await web3.eth.getAccounts();
-
-        //   const network = await web3.eth.net.getId();
-        // }
-
-        // const accounts = await window.ethereum.request({
-        //   method: "eth_requestAccounts",
-        // });
-        // console.log(accounts);
+        this.$store.commit("setAddress", address);
       }
     },
   },
