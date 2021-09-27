@@ -16,7 +16,7 @@ class ProjectRaise {
             const accounts = await web3.eth.getAccounts()
             const contract = await new web3.eth.Contract(ProjectRaiseABI, address)
             await contract.methods.withdrawFunds().send({from: accounts[0]})
-        } catch (e: any) {
+        } catch (e: any) { 
             error = e.message
         }
 

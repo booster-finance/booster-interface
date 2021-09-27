@@ -1,6 +1,7 @@
 const enum ChainId {
     HARMONY = 1666600000,
-    HARMONY_TESTNET = 1666700000
+    HARMONY_TESTNET = 1666700000,
+    HARMONY_LOCALNET = 1666700000
   }
 
 const explorer = {
@@ -29,6 +30,10 @@ const chains: ChainObject = {
   },
   [ChainId.HARMONY_TESTNET]: {
     link: 'https://explorer.pops.one/#',
+    builder: explorer.harmony,
+  },
+  [ChainId.HARMONY_LOCALNET]: {
+    link: '#',
     builder: explorer.harmony,
   }
 }

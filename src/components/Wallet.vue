@@ -63,7 +63,7 @@ export default defineComponent({
       return this.$store.state.network;
     },
     address: function () {
-      return this.$store.state.address;
+      return this.$store.state.account;
     },
     defaultNetwork: function () {
       let defaultNetwork = networks.find((obj) => obj.default);
@@ -82,19 +82,27 @@ export default defineComponent({
       return add.substring(0, 6) + "..." + add.substring(add.length - 4);
     },
   },
-  mounted: function () {
+  mounted: async function () {
     if (this.metaMaskInstalled) {
       let network = networks.find(
         (obj) => obj.chainId == window.ethereum.chainId
       );
 
       this.$store.commit("setNetwork", network);
-      window.ethereum.on("chainChanged", () => {
+      let store = this.$store;
+      window.ethereum.on("chainChanged", function () {
+        console.log(arguments);
         let network = networks.find(
           (obj) => obj.chainId == window.ethereum.chainId
         );
-        this.$store.commit("setNetwork", network);
+        store.commit("setNetwork", network);
       });
+
+      let accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      if (accounts && accounts.length > 0)
+        this.$store.commit("setAccount", accounts[0]);
 
       window.ethereum.on("accountsChanged", (accounts) => {
         this.$store.commit("setAccount", accounts[0]);
@@ -122,13 +130,14 @@ export default defineComponent({
         console.log("Connect wallet ...");
 
         const provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        console.log(provider);
+        let accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
 
         const signer = provider.getSigner();
         let address = await signer.getAddress();
 
-        this.$store.commit("setAddress", address);
+        this.$store.commit("setAccount", accounts[0]);
       }
     },
   },

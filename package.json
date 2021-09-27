@@ -9,15 +9,6 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@metamask/detect-provider": "^1.2.0",
-    "core-js": "^3.6.5",
-    "ethers": "^5.4.7",
-    "vue": "^3.0.0",
-    "vue-class-component": "^8.0.0-0",
-    "vue-material-design-icons": "^4.12.1",
-    "vue-router": "^4.0.0-0",
-    "vuex": "^4.0.0-0",
-    "web3": "^1.5.2",
     "@ethersproject/abi": "^5.4.0",
     "@ethersproject/abstract-provider": "^5.4.0",
     "@ethersproject/address": "^5.4.0",
@@ -29,7 +20,19 @@
     "@ethersproject/keccak256": "^5.4.0",
     "@ethersproject/providers": "^5.4.0",
     "@ethersproject/strings": "^5.4.0",
-    "@ethersproject/units": "^5.4.0"
+    "@ethersproject/units": "^5.4.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.36",
+    "@fortawesome/free-solid-svg-icons": "^5.15.4",
+    "@fortawesome/vue-fontawesome": "^3.0.0-4",
+    "@metamask/detect-provider": "^1.2.0",
+    "core-js": "^3.6.5",
+    "ethers": "^5.4.7",
+    "vue": "^3.0.0",
+    "vue-class-component": "^8.0.0-0",
+    "vue-material-design-icons": "^4.12.1",
+    "vue-router": "^4.0.0-0",
+    "vuex": "^4.0.0-0",
+    "web3": "^1.5.2"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",
@@ -71,7 +74,8 @@
     "parserOptions": {
       "ecmaVersion": 2020
     },
-    "rules": {},
+    "rules": {
+    },
     "overrides": [
       {
         "files": [

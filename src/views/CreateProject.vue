@@ -53,15 +53,24 @@
     </error>
 
     <div class="submit">
-      <div id="validateBtn" class="button" @click="validate">Validate</div>
+      <div id="validateBtn" class="button" :class="{disabled: validateButtonDisabled}" @click="validate">Validate</div>
       <div
         id="createBtn"
-        :class="{ disabled: !validated }"
+        :class="{ disabled: createButtonDisabled }"
         class="button"
         @click="create"
       >
         Create
       </div>
+    </div>
+    <div>
+      <p>Creating project. Don't leave the site!</p>
+      <ul>
+        <li>Create Tier NFTs</li>
+        <li>Deploy Factory Contract</li>
+        <li>Apply Tiers</li>
+        <li>Completed</li>
+      </ul>
     </div>
   </div>
 </template>
@@ -73,6 +82,11 @@ import TierList from "../components/TierList.vue";
 import MilestoneList from "@/components/MilestoneList.vue";
 import Error from "@/components/Error.vue";
 import Tier from "@/model/Tiers";
+import ProjectFactory from "@/web3/projectFactory";
+
+import web3utils from "web3-utils";
+import { BigNumber } from "@ethersproject/bignumber";
+import TierNFT from "@/web3/tierNFT";
 
 const gaming: Project = {
   id: 0,
@@ -127,10 +141,27 @@ export default defineComponent({
       project: gaming,
       validated: false,
       created: false,
+      deploying: false,
       errors: [],
     };
   },
   computed: {
+    validateButtonDisabled(){
+      return !(!this.deploying && !this.validated)
+    },
+    createButtonDisabled(){
+      return !(!this.deploying && this.validated)
+    },
+    milestoneReleaseDates: function () {
+      console.log(this.project.milestones);
+      return this.project.milestones.map((milestone) => milestone.releaseDate);
+    },
+    milestoneReleasePercents: function () {
+      console.log(this.project.milestones);
+      return this.project.milestones.map(
+        (milestone) => milestone.releasePercentage
+      );
+    },
     fundedProperly: function () {
       return this.totalFunding >= this.project.fundingGoal;
     },
@@ -217,12 +248,34 @@ export default defineComponent({
 
       return this.errors.length == 0;
     },
-    create() {
+    async create() {
       if (this.validate()) {
-        this.created = true;
+        this.deploying = true;
+        console.log("Create");
+
+        let tierNftContract;
+        try {
+          /* TODO: How to determine?! */
+          const proxyMintingAddress = "123";
+          tierNftContract = await TierNFT.createContract(proxyMintingAddress);
+        } catch (e) {
+          this.errors = [e];
+          return;
+        }
+
+        // (fundingGoal: BigNumber, startTime: BigNumber, tokenURI: string, milestoneReleaseDates: [], milestoneReleasePercents: []) {
+        const error = await ProjectFactory.createProjectRaise(
+          this.project.fundingGoal,
+          BigNumber.from(Date.now()),
+          tierNftContract.options.address,
+          this.milestoneReleaseDates,
+          this.milestoneReleasePercents
+        );
+
+        if (error) this.errors.push(error);
       } else {
         this.validated = false;
-        this.created = false;
+        this.deploying = false;
       }
     },
     addTier() {

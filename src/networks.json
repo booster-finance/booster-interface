@@ -5,6 +5,9 @@
     },
     {
         "name": "Harmony Testnet",
+        "chainId": 1666700000
+    },{
+        "name": "Harmony Localnet",
         "chainId": 1666700000,
         "default": true
     }
