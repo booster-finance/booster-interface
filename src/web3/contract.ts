@@ -3,6 +3,7 @@
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 
 import { AddressZero } from '@ethersproject/constants'
+import ProjectFactoryABI from '../../contracts/projectFactory.json'
 import ProjectRaiseABI from '../../contracts/projectRaise.json'
 import TierNFTABI from '../../contracts/tierNFT.json'
 import { Contract } from '@ethersproject/contracts'
@@ -25,6 +26,16 @@ export function getContract(address: string, ABI: any, library: Web3Provider, ac
   }
 
   return new Contract(address, ABI, getProviderOrSigner(library, account) as any)
+}
+
+// account is optional
+export function getProjectFactoryContract(address: string, library: Web3Provider, account?: string): Contract {
+  return getContract(
+    address,
+    ProjectFactoryABI,
+    library,
+    account
+  )
 }
 
 // account is optional
