@@ -1,0 +1,302 @@
+<template>
+  <div class="create-project">
+    <header>
+      <h2>Create New Project</h2>
+    </header>
+
+    <h3>Title</h3>
+    <input v-model="project.title" name="title" type="text" />
+    <h3>Description</h3>
+    <textarea
+      name="description"
+      id=""
+      cols="30"
+      rows="10"
+      maxlength="768"
+      v-model="project.description"
+    ></textarea>
+    <h3>Funding Goal</h3>
+    <input type="number" v-model="project.fundingGoal" />
+    <h3>Link</h3>
+    <input v-model="project.link" name="link" type="text" />
+
+    <!-- Tiers -->
+    <tier-list
+      :tiers="project.tiers"
+      @changed="tierChanged"
+      @add="addTier"
+      @remove="removeTier"
+    />
+
+    <p class="errorous" :class="{ correct: fundedProperly }">
+      Total Allocation: {{ totalFunding }} / {{ project.fundingGoal }}
+    </p>
+
+    <!-- Milestones -->
+    <MilestoneList
+      :milestones="project.milestones"
+      :totalFunding="totalFunding"
+      @add="addMilestone"
+      @remove="removeMilestone"
+      @allocChanged="allocChanged"
+      @dateChanged="dateChanged"
+    />
+
+    <p class="errorous" :class="{ correct: allocationCorrect }">
+      Total Allocation: {{ fullAlloc }}% / 100%
+    </p>
+
+    <error v-if="errors && errors.length > 0">
+      <p v-for="(error, errorIdx) of errors" :key="'error-' + errorIdx">
+        {{ error }}
+      </p>
+    </error>
+
+    <div class="submit">
+      <div id="validateBtn" class="button" @click="validate">Validate</div>
+      <div
+        id="createBtn"
+        :class="{ disabled: !validated }"
+        class="button"
+        @click="create"
+      >
+        Create
+      </div>
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+import { Project, ProjectPhase } from "../model/Project";
+import TierList from "../components/TierList.vue";
+import MilestoneList from "@/components/MilestoneList.vue";
+import Error from "@/components/Error.vue";
+import Tier from "@/model/Tiers";
+
+const gaming: Project = {
+  id: 0,
+  title: "Fred the Knight",
+  status: ProjectPhase.Investment,
+  fundingGoal: 3000,
+  description:
+    "It's the best point and click adventure ever made. Fred the Knight has to find his big love Princess Penelope.",
+  link: "https://fred-the-game.com",
+  tiers: [
+    {
+      backers: 20,
+      maxBackers: 100,
+      cost: 10,
+    },
+    {
+      backers: 20,
+      maxBackers: 50,
+      cost: 50,
+    },
+    {
+      backers: 2,
+      maxBackers: 10,
+      cost: 150,
+    },
+  ],
+  milestones: [
+    {
+      releaseDate: Date.now() + 1000000000,
+      releasePercentage: 10,
+    },
+    {
+      releaseDate: Date.now() + 4000000000,
+      releasePercentage: 20,
+    },
+    {
+      releaseDate: Date.now() + 6000000000,
+      releasePercentage: 50,
+    },
+    {
+      releaseDate: Date.now() + 10000000000,
+      releasePercentage: 20,
+    },
+  ],
+};
+
+export default defineComponent({
+  components: { TierList, MilestoneList, Error },
+
+  data: function () {
+    return {
+      project: gaming,
+      validated: false,
+      created: false,
+      errors: [],
+    };
+  },
+  computed: {
+    fundedProperly: function () {
+      return this.totalFunding >= this.project.fundingGoal;
+    },
+    allocationCorrect: function () {
+      return this.fullAlloc == 100;
+    },
+    totalFunding: function () {
+      return this.project.tiers.reduce((prev, tier) => {
+        return prev + tier.maxBackers * tier.cost;
+      }, 0);
+    },
+    fullAlloc() {
+      if (this.project.milestones.length == 0) return 0;
+      return this.project.milestones.reduce((prev, current) => {
+        return prev + current.releasePercentage;
+      }, 0);
+    },
+  },
+  methods: {
+    validate() {
+      this.errors = [];
+      if (!this.fundedProperly) {
+        this.errors.push(
+          "Tiers must provide higher funding than the funding goal!"
+        );
+      }
+
+      if (!this.allocationCorrect) {
+        this.errors.push("Make sure the allocation sums up to 100!");
+      }
+
+      this.project.tiers.forEach((tier, idx) => {
+        if (tier.maxBackers <= 0) {
+          this.errors.push(
+            `Tier must have at least 1 backer (${Tier.getName(
+              idx,
+              this.project.tiers.length
+            )})`
+          );
+        }
+      });
+
+      this.project.tiers.forEach((tier, idx) => {
+        if (tier.cost <= 0) {
+          this.errors.push(
+            `Tier cost must be greater than 0$ (${Tier.getName(
+              idx,
+              this.project.tiers.length
+            )})`
+          );
+        }
+      });
+
+      this.project.milestones.forEach((milestone, idx) => {
+        if (milestone.releasePercentage <= 0) {
+          this.errors.push(
+            `Milestone must be greater than 0 of (Milestone #${idx + 1})`
+          );
+        }
+      });
+
+      this.project.milestones.forEach((milestone, idx) => {
+        if (milestone.releaseDate - Date.now() <= 0) {
+          this.errors.push(
+            `Milestone release date must be in the future of (Milestone #${
+              idx + 1
+            })`
+          );
+        }
+      });
+
+      if (this.errors.length == 0) this.validated = true;
+
+      return this.errors.length == 0;
+    },
+    create() {
+      if (this.validate()) {
+        this.created = true;
+      } else {
+        this.validated = false;
+        this.created = false;
+      }
+    },
+    addTier() {
+      this.$data.project.tiers.push({
+        backers: 0,
+        maxBackers: 10,
+        cost: 100,
+        // rewards: [],
+      });
+    },
+    removeTier(index: number) {
+      this.$data.project.tiers.splice(index, 1);
+    },
+    addMilestone() {
+      this.$data.project.milestones.push({
+        releaseDate: -1,
+        releasePercentage: 0,
+      });
+    },
+    removeMilestone(index: number) {
+      this.$data.project.milestones.splice(index, 1);
+    },
+    allocChanged(index: number, alloc: number) {
+      // console.log(index, alloc)
+      let milestone = this.project.milestones[index];
+      milestone.releasePercentage = alloc;
+      this.project.milestones.splice(index, 1, milestone);
+    },
+    dateChanged(index: number, date: number) {
+      let milestone = this.project.milestones[index];
+      milestone.releaseDate = date;
+      this.project.milestones.splice(index, 1, milestone);
+    },
+    tierChanged(index: number, tier: Tier) {
+      this.project.tiers.splice(index, 1, tier);
+    },
+  },
+});
+</script>
+
+<style lang="scss" scoped>
+.create-project {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 50vh;
+
+  border: $border;
+  border-radius: 10px;
+
+  > * {
+    flex: 1;
+  }
+
+  button {
+    margin-top: 50px;
+  }
+}
+
+.submit {
+  display: flex;
+  margin-top: 30px;
+
+  > * {
+    flex: 1;
+  }
+
+  > *:not(:last-child) {
+    margin-right: 10px;
+  }
+}
+
+.errorous {
+  color: $red;
+  font-weight: bold;
+  &.correct {
+    color: $green;
+  }
+}
+
+#validateBtn,
+#createBtn {
+  padding: 20px;
+}
+
+textarea {
+  resize: none;
+}
+</style>

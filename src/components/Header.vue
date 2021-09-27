@@ -4,16 +4,21 @@
       <img src="booster.svg" alt="Image of Booster Finance" />
       <span>Booster Finance</span>
     </div>
+
+    <Navigation />
     <Wallet />
   </header>
 </template>
 
 <script lang="ts">
-import { Vue, Options } from "vue-class-component";
 import Wallet from "./Wallet.vue";
+import Navigation from "./Navigation.vue";
+import { defineComponent } from "@vue/runtime-core";
 
-@Options({ components: { Wallet } })
-export default class Header extends Vue {}
+export default defineComponent({
+  name: "Header",
+  components: { Wallet, Navigation },
+});
 </script>
 
 <style lang="scss" scoped>
@@ -26,7 +31,6 @@ header {
   display: flex;
   padding: 10px;
   position: relative;
-  background-color: whitesmoke;
   align-items: center;
 }
 
