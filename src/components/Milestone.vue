@@ -11,13 +11,15 @@
       }}
       $
     </div>
-    <input
-      type="number"
-      :value="value.releasePercentage"
-      step="1"
-      min="0"
-      @input="allocChanged"
-    />
+    <div class="milestone-alloc">
+      <input
+        type="number"
+        :value="value.releasePercentage"
+        step="1"
+        min="0"
+        @input="allocChanged"
+      />
+    </div>
     <input
       type="date"
       :value="new Date(value.releaseDate).toISOString().slice(0, 10)"
@@ -91,6 +93,19 @@ input[type="date"] {
   display: flex;
   > input {
     flex: 1;
+  }
+}
+
+.milestone-alloc {
+  position: relative;
+  &::before {
+    position: absolute;
+    top: 45%;
+    right: 30px;
+    line-height: 0;
+    z-index: 1;
+    content: "%";
+    font-weight: bold;
   }
 }
 </style>

@@ -159,7 +159,7 @@ export default defineComponent({
       }
 
       if (!this.allocationCorrect) {
-        this.errors.push("Make sure the allocation sums up to 100!");
+        this.errors.push("Make sure the allocation sums up to 100%!");
       }
 
       this.project.tiers.forEach((tier, idx) => {
@@ -184,7 +184,8 @@ export default defineComponent({
         }
       });
 
-      this.project.milestones.forEach((milestone, idx) => {
+      const milestones = this.project.milestones;
+      milestones.forEach((milestone, idx) => {
         if (milestone.releasePercentage <= 0) {
           this.errors.push(
             `Milestone must be greater than 0 of (Milestone #${idx + 1})`
@@ -192,15 +193,25 @@ export default defineComponent({
         }
       });
 
-      this.project.milestones.forEach((milestone, idx) => {
+      milestones.forEach((milestone, idx) => {
         if (milestone.releaseDate - Date.now() <= 0) {
           this.errors.push(
-            `Milestone release date must be in the future of (Milestone #${
+            `Milestone release date must be in the future (Milestone #${
               idx + 1
             })`
           );
         }
       });
+
+      for (let i = 0; i < milestones.length - 1; i++) {
+        if (milestones[i].releaseDate > milestones[i + 1].releaseDate) {
+          this.errors.push(
+            `Milestone release date of Milestone #${
+              i + 1
+            } must be earlier, than of Milestone #${i + 2}`
+          );
+        }
+      }
 
       if (this.errors.length == 0) this.validated = true;
 
