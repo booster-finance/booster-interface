@@ -1,33 +1,21 @@
-import ProjectRaiseABI from '../../contracts/projectRaise.json'
-import Web3 from './web3'
-import moment from 'moment'
+import Web3 from 'web3'
+import { BigNumber } from '@ethersproject/bignumber'
+
+const ProjectRaiseABI = require('../../contracts/projectRaise')
 
 class ProjectRaise {
-    createContract = async function () {
-        const web3 = await Web3()        
+    withdrawFunds = async function (address: string) {
+        // TODO: Connect to current web3 provider (harmony)
+        const web3 = await new Web3(this.$store.state.network);       
         if (!web3) {
             return undefined
         }
 
-        const accounts = await web3.eth.getAccounts()
-        const contract = await new web3.eth.Contract(JSON.parse(ProjectRaiseABI))
-            .deploy()
-            .send({from: accounts[0]})
-        return contract
-    }
-
-    pay = async function (address, reference, amount) {
-        const web3 = await Web3()        
-        if (!web3) {
-            return undefined
-        }
-
-        let error
+        let error: string
         try {
             const accounts = await web3.eth.getAccounts()
-            const contract = await new web3.eth.Contract(JSON.parse(Payments.abi), address)
-            const value = web3.utils.toWei(String(amount), 'ether')
-            await contract.methods.pay(reference, value).send({from: accounts[0], value: value})
+            const contract = await new web3.eth.Contract(ProjectRaiseABI, address)
+            await contract.methods.withdrawFunds().send({from: accounts[0]})
         } catch (e: any) {
             error = e.message
         }
@@ -35,47 +23,189 @@ class ProjectRaise {
         return error
     }
 
-    withdraw = async function (address) {
-        const web3 = await Web3()        
+    cancelProject = async function (address: string) {
+        // TODO: Connect to current web3 provider (harmony)
+        const web3 = await new Web3(this.$store.state.network);       
         if (!web3) {
             return undefined
         }
 
-        let error
+        let error: string
         try {
             const accounts = await web3.eth.getAccounts()
-            const contract = await new web3.eth.Contract(JSON.parse(Payments.abi), address)
-            await contract.methods.withdraw().send({from: accounts[0]})
-        } catch (e) {
+            const contract = await new web3.eth.Contract(ProjectRaiseABI, address)
+            await contract.methods.cancelProject().send({from: accounts[0]})
+        } catch (e: any) {
             error = e.message
         }
 
         return error
     }
 
-    getPaymentsOfAccount = async function(address, account, unit) {
-        const web3 = await Web3()        
+    assignTiers = async function (address: string, tierAmounts: [], tierRewards: [], maxBackers: []) {
+        // TODO: Connect to current web3 provider (harmony)
+        const web3 = await new Web3(this.$store.state.network);       
         if (!web3) {
             return undefined
         }
 
-        const contract = await new web3.eth.Contract(JSON.parse(Payments.abi), address)
-        const count = await contract.methods.paymentsOf(account).call()
-        const payments = await Promise.all(
-            Array(parseInt(count))
-            .fill()
-            .map( async (el, index) => {
-                const payment = await contract.methods.paymentOfAt(account, index).call()
-                const amount = (!payment[1])?'': web3.utils.fromWei(payment[1], unit)
-                const date = (!payment[2])?'': moment(payment[2], 'X').format('YYYY-MM-DDTHH:mm:ss')
-                return {
-                    reference: payment[0],
-                    amount: amount,
-                    date: date
-                }
-            })
-        )
-        return payments
+        let error: string
+        try {
+            const accounts = await web3.eth.getAccounts()
+            const contract = await new web3.eth.Contract(ProjectRaiseABI, address)
+            // TODO: Make sure to convert values to correct decimal place
+            await contract.methods.assignTiers(tierAmounts, tierRewards, maxBackers).send({from: accounts[0]})
+        } catch (e: any) {
+            error = e.message
+        }
+
+        return error
+    }
+
+    checkFundingSuccess = async function (address: string) {
+        // TODO: Connect to current web3 provider (harmony)
+        const web3 = await new Web3(this.$store.state.network);       
+        if (!web3) {
+            return undefined
+        }
+
+        let error: string
+        try {
+            const accounts = await web3.eth.getAccounts()
+            const contract = await new web3.eth.Contract(ProjectRaiseABI, address)
+            await contract.methods.checkFundingSuccess().send({from: accounts[0]})
+        } catch (e: any) {
+            error = e.message
+        }
+
+        return error
+    }
+
+    acceptBacker = async function (address: string, amount: BigNumber) {
+        // TODO: Connect to current web3 provider (harmony)
+        const web3 = await new Web3(this.$store.state.network);       
+        if (!web3) {
+            return undefined
+        }
+
+        let error: string
+        try {
+            const accounts = await web3.eth.getAccounts()
+            const contract = await new web3.eth.Contract(ProjectRaiseABI, address)
+            // TODO: Make sure to convert values to correct decimal place
+            await contract.methods.checkFundingSuccess(amount).send({from: accounts[0]})
+        } catch (e: any) {
+            error = e.message
+        }
+
+        return error
+    }
+
+    vote = async function (address: string, cancelVote: Boolean) {
+        // TODO: Connect to current web3 provider (harmony)
+        const web3 = await new Web3(this.$store.state.network);       
+        if (!web3) {
+            return undefined
+        }
+
+        let error: string
+        try {
+            const accounts = await web3.eth.getAccounts()
+            const contract = await new web3.eth.Contract(ProjectRaiseABI, address)
+            await contract.methods.vote(cancelVote).send({from: accounts[0]})
+        } catch (e: any) {
+            error = e.message
+        }
+
+        return error
+    }
+
+    milestoneCheck = async function (address: string) {
+        // TODO: Connect to current web3 provider (harmony)
+        const web3 = await new Web3(this.$store.state.network);       
+        if (!web3) {
+            return undefined
+        }
+
+        let error: string
+        try {
+            const accounts = await web3.eth.getAccounts()
+            const contract = await new web3.eth.Contract(ProjectRaiseABI, address)
+            await contract.methods.milestoneCheck().send({from: accounts[0]})
+        } catch (e: any) {
+            error = e.message
+        }
+
+        return error
+    }
+
+    withdrawRefund = async function (address: string, amount: BigNumber) {
+        // TODO: Connect to current web3 provider (harmony)
+        const web3 = await new Web3(this.$store.state.network);       
+        if (!web3) {
+            return undefined
+        }
+
+        let error: string
+        try {
+            const accounts = await web3.eth.getAccounts()
+            const contract = await new web3.eth.Contract(ProjectRaiseABI, address)
+            const value = web3.utils.toWei(String(amount), 'ether')
+            // TODO: Make sure to convert values to correct decimal place
+            await contract.methods.withdrawRefund(amount).send({from: accounts[0]})
+        } catch (e: any) {
+            error = e.message
+        }
+
+        return error
+    }
+
+    getBackerRewards = async function(address: string, account: string) {
+        // TODO: Connect to current web3 provider (harmony)
+        const web3 = await new Web3(this.$store.state.network);         
+        if (!web3) {
+            return undefined
+        }
+
+        const contract = await new web3.eth.Contract(ProjectRaiseABI, address)
+        const backerRewards = await contract.methods.getBackerRewards(account).call()
+        return backerRewards
+    }
+
+    getAddressBacking = async function(address: string, account: string) {
+        // TODO: Connect to current web3 provider (harmony)
+        const web3 = await new Web3(this.$store.state.network);         
+        if (!web3) {
+            return undefined
+        }
+
+        const contract = await new web3.eth.Contract(ProjectRaiseABI, address)
+        const addressBacking = await contract.methods.getAddressBacking(account).call()
+        return addressBacking
+    }
+
+    getCancelVote = async function(address: string, account: string) {
+        // TODO: Connect to current web3 provider (harmony)
+        const web3 = await new Web3(this.$store.state.network);         
+        if (!web3) {
+            return undefined
+        }
+
+        const contract = await new web3.eth.Contract(ProjectRaiseABI, address)
+        const cancelVote = await contract.methods.getCancelVote(account).call()
+        return cancelVote
+    }
+
+    balanceOf = async function(address: string) {
+        // TODO: Connect to current web3 provider (harmony)
+        const web3 = await new Web3(this.$store.state.network);         
+        if (!web3) {
+            return undefined
+        }
+
+        const contract = await new web3.eth.Contract(ProjectRaiseABI, address)
+        const projectBalance = await contract.methods.balanceOf().call()
+        return projectBalance
     }
 }
 
