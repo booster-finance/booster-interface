@@ -417,22 +417,22 @@
   },
   {
     "inputs": [
-    {
-      "internalType": "address",
-      "name": "_account",
-      "type": "address"
-    }
-  ],
-  "name": "getCancelVote",
-  "outputs": [
-    {
-      "internalType": "bool",
-      "name": "cancelVote",
-      "type": "bool"
-    }
-  ],
-  "stateMutability": "view",
-  "type": "function"
+      {
+        "internalType": "address",
+        "name": "_account",
+        "type": "address"
+      }
+    ],
+    "name": "getCancelVote",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "cancelVote",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],
