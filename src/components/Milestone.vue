@@ -21,8 +21,8 @@
       />
     </div>
     <input
-      type="date"
-      :value="new Date(value.releaseDate).toISOString().slice(0, 10)"
+      type="datetime-local"
+      :value="new Date(value.releaseDate).toJSON().slice(0,19)"
       @input="dateChanged"
     />
   </list-item>
@@ -84,8 +84,8 @@ input {
   width: 75px;
 }
 
-input[type="date"] {
-  width: 140px;
+input[type="datetime-local"] {
+  width: 210px;
   padding-right: 0;
 }
 

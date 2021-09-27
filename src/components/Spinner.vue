@@ -1,27 +1,34 @@
 <template>
-  <div class="spinner"></div>
+  <div class="spinner lds-dual-ring"></div>
 </template>
 
-<style scoped>
-@keyframes spinner {
-  to {
-    transform: rotate(360deg);
+<style scoped lang="scss">
+
+$size: 10px;
+
+.lds-dual-ring {
+  display: inline-block;
+  width: $size;
+  height: $size;
+}
+.lds-dual-ring:after {
+  content: " ";
+  display: block;
+  width: $size;
+  height: $size;
+  border-radius: 50%;
+  border: 8px solid $primary;
+  border-color: $primary transparent $primary transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+  box-sizing: border-box;
+}
+@keyframes lds-dual-ring {
+  0% {
+    transform: translateY(-20%) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-20%) rotate(360deg);
   }
 }
 
-.spinner:before {
-  content: "";
-  box-sizing: border-box;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 20px;
-  height: 20px;
-  margin-top: -10px;
-  margin-left: -10px;
-  border-radius: 50%;
-  border: 2px solid #ccc;
-  border-top-color: #000;
-  animation: spinner 0.6s linear infinite;
-}
 </style>
