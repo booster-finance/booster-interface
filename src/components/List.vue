@@ -9,7 +9,9 @@
       <slot name="items" />
     </div>
     <button v-if="max == null || items.length < max" @click="$emit('add')">
-      Add
+      <font-awesome-icon class="icon" :icon="['fas', 'plus']" />
+      <span>Add Item</span>
+      
     </button>
     <InfoBox v-else>Reached maximum tier list.</InfoBox>
   </div>
@@ -38,7 +40,16 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.empty{
+.empty {
   margin-bottom: 5px;
+}
+
+.icon {
+  margin-right: 10px;
+  color: $gray-70;
+}
+
+span {
+  font-weight: bold;
 }
 </style>

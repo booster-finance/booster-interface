@@ -5,19 +5,19 @@ import { BigNumber } from "@ethersproject/bignumber";
 import * as ProjectFactoryABI from "../../contracts/projectFactory.json";
 
 import store from "../store";
+import { ensureWeb3 } from "./utils";
 
-declare global {
-  interface Window {
-    ethereum: any;
-  }
-}
+// declare global {
+//   interface Window {
+//     ethereum: any;
+//   }
+// }
 
 class ProjectFactory {
   static createContract = async function () {
-    const web3 = await new Web3(Web3.givenProvider || "ws://localhost:9500");
-    if (!web3) {
-      return undefined;
-    }
+    if (!store.state.network) throw new Error("Network is not set");
+
+    const web3 = await ensureWeb3();
 
     const contract = await new web3.eth.Contract(
       ProjectFactoryABI.abi as AbiItem[]
@@ -27,7 +27,7 @@ class ProjectFactory {
     return contract;
   };
 
-  static createProjectRaise = async function  (
+  static createProjectRaise = async function (
     fundingGoal: BigNumber,
     startTime: BigNumber,
     tokenURI: string,
@@ -38,21 +38,18 @@ class ProjectFactory {
     console.log(arguments);
 
     // TODO: Connect to current web3 provider (harmony)
-    const web3 = await new Web3(Web3.givenProvider || "ws://localhost:9500");
-    if (!web3) {
-      return undefined;
-    }
+    const web3 = await ensureWeb3();
 
     let error: string;
     try {
       const accounts = await web3.eth.getAccounts();
       const contract = await new web3.eth.Contract(
         ProjectFactoryABI.abi as AbiItem[],
-        store.state.factoryContractAddress
+        store.state.network.ustContractAddress
       );
       await contract.methods
         .createProjectRaise(
-          store.state.ustContractAddress,
+          store.state.network.ustContractAddress,
           store.state.account,
           fundingGoal,
           startTime.toHexString(),
@@ -69,11 +66,7 @@ class ProjectFactory {
   };
 
   static getProjects = async function (address: string) {
-    // TODO: Connect to current web3 provider (harmony)
-    const web3 = await new Web3(Web3.givenProvider || "ws://localhost:9500");
-    if (!web3) {
-      return undefined;
-    }
+    const web3 = await ensureWeb3();
 
     const contract = await new web3.eth.Contract(
       ProjectFactoryABI.abi as AbiItem[],

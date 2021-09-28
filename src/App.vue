@@ -49,6 +49,39 @@ body,
   height: 100%;
 }
 
+main {
+  background: linear-gradient(10deg, whitesmoke, $white);
+}
+
+#background-icon {
+  width: 12.5%;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  position: relative;
+  flex: 1;
+  align-items: center;
+
+  &::before {
+    position: absolute;
+
+    content: "";
+    width: 100%;
+    height: 100%;
+    background-size: 33%;
+    background-position: center center;
+    background-repeat: no-repeat;
+    opacity: 0.03;
+
+    background-image: url("/booster.svg");
+  }
+}
+
 body {
   font-family: "Lato", sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -144,7 +177,7 @@ main {
   }
 
   &:active {
-    box-shadow: inset 1px 1px 5px rgba($color: #222, $alpha: 0.8);
+    box-shadow: inset 1px 1px 5px rgba($color: $gray-70, $alpha: 0.6);
   }
 }
 
@@ -157,10 +190,13 @@ main {
   text-align: center;
 }
 
-.nav-item,
 textarea,
 input,
 button {
   @include input();
+}
+
+button {
+  color: $gray-70;
 }
 </style>

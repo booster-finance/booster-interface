@@ -21,7 +21,6 @@ export default defineComponent({
 $slimborder: 1px solid rgba(0, 0, 0, 0.3);
 
 nav {
-  min-width: 320px;
 
   a {
     display: inline-block;
@@ -29,8 +28,7 @@ nav {
     margin: 5px 10px;
     font-weight: bold;
     text-decoration: none;
-    color: $black;
-    border: none;
+    color: $gray-70;
   }
 }
 

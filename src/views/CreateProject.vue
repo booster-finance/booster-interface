@@ -70,14 +70,13 @@
         Create
       </div>
     </div>
-    <div>
+    <div v-if="deploying">
       <p>Creating project. Don't leave the site!</p>
 
       <div>
-        <pending-item :status="2">Create Tier NFT Token</pending-item>
-        <pending-item :status="1">Deploy Factory Contract</pending-item>
-        <pending-item>Apply Tiers</pending-item>
-        <pending-item>Completed</pending-item>
+        <pending-item :status="2">Create Metadata</pending-item>
+        <pending-item :status="1">Deploy Project Contract</pending-item>
+        <pending-item>Assign Tiers</pending-item>
       </div>
     </div>
   </div>
@@ -153,6 +152,14 @@ export default defineComponent({
       errors: [],
     };
   },
+  watch: {
+    project: {
+      handler() {
+        this.validated = false;
+      },
+      deep: true,
+    },
+  },
   computed: {
     validateButtonDisabled() {
       return !(!this.deploying && !this.validated);
@@ -227,7 +234,9 @@ export default defineComponent({
       milestones.forEach((milestone, idx) => {
         if (milestone.releasePercentage <= 0) {
           this.errors.push(
-            `Milestone must be greater than 0 of (Milestone #${idx + 1})`
+            `Milestone allocation must be greater than 0 of (Milestone #${
+              idx + 1
+            })`
           );
         }
       });
@@ -327,6 +336,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .create-project {
   display: flex;
+  background-color: $white;
   flex-direction: column;
   margin-bottom: 50vh;
 
@@ -365,7 +375,7 @@ export default defineComponent({
 
 #validateBtn,
 #createBtn {
-  padding: 20px;
+  padding: 10px;
 }
 
 textarea {

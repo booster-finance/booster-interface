@@ -21,6 +21,7 @@ export default defineComponent({
 .error {
   background-color: $red;
   border: $border;
+  border-radius: 5px;
   padding: 10px 20px;
   color: $white;
   display: flex;

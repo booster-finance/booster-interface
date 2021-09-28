@@ -8,11 +8,14 @@
       :value="projects[0]"
       @changeStatus="changeStatus"
     />
+
+    <div class="button" id="createProject" @click="createProject">
+      <font-awesome-icon class="icon" :icon="['fas', 'plus']" />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { ProjectPhase, Project } from "@/model/Project";
 import ProjectPreview from "../components/ProjectPreview.vue";
 
 import { defineComponent } from "vue";
@@ -28,16 +31,18 @@ export default defineComponent({
       projects: [],
     };
   },
-  mounted: async function () {
-    console.log("Load projects ...");
-    if (this.$store.state.factoryContractAddress) {
-      this.projects = await ProjectFactory.getProjects(
-        this.$store.state.factoryContractAddress
-      );
-
-      this.loading = false;
-      console.log("Loaded projects ", this.projects);
-    }
+  computed: {
+    network: function () {
+      return this.$store.state.network;
+    },
+  },
+  watch: {
+    network() {
+      this.loadProjects();
+    },
+  },
+  mounted: function(){
+    this.loadProjects()
   },
   methods: {
     changeStatus: function () {
@@ -47,7 +52,34 @@ export default defineComponent({
 
       console.log("CHANGE STATUS", this.projects[0].status);
     },
+
+    createProject: function () {
+      this.$router.push({ name: "Create" });
+    },
+    loadProjects: async function () {
+      console.log("Load projects ... ");
+      if (this.network?.factoryContractAddress) {
+        this.projects = await ProjectFactory.getProjects(
+          this.network.factoryContractAddress
+        );
+
+        this.loading = false;
+        console.log("Projects loaded ", this.projects);
+      }
+    },
   },
 });
 </script>
 
+
+<style lang="scss" scoped>
+#createProject {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  width: 74px;
+  height: 74px;
+  border-radius: 37px;
+  box-sizing: border-box;
+}
+</style>

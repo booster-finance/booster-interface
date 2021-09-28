@@ -159,6 +159,16 @@ h2 {
   margin-top: 0;
   padding-bottom: 1rem;
   border-bottom: $border;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+h3 {
+  font-size: 1rem;
+  margin-top: 2rem;
+  margin-bottom: 0;
 }
 
 #tier-list > *:not(:last-child) {

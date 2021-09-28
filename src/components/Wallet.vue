@@ -16,7 +16,7 @@
       v-if="!address"
       class="metamask button"
       :class="{ disabled: !metaMaskInstalled }"
-      @click="connectWallet"
+      @click="this.connectWallet"
     >
       <img
         width="32"
@@ -32,7 +32,6 @@
   </div>
 
   <div class="button disabled" v-if="!metaMaskInstalled">Install MetaMask</div>
-
   <div
     class="error button"
     @click="requestDefaultChain"
@@ -44,10 +43,8 @@
 </template>
 
 <script lang="ts">
+import getNetwork, { defaultChain } from "@/model/Networks";
 import { defineComponent } from "@vue/runtime-core";
-import { ethers } from "ethers";
-
-import networks from "../networks.json";
 
 declare global {
   interface Window {
@@ -65,15 +62,6 @@ export default defineComponent({
     address: function () {
       return this.$store.state.account;
     },
-    defaultNetwork: function () {
-      let defaultNetwork = networks.find((obj) => obj.default);
-      if (defaultNetwork) {
-        return defaultNetwork;
-      } else {
-        console.error("No default network specified in config!");
-        return networks[0] || 1;
-      }
-    },
     metaMaskInstalled: function () {
       return typeof window.ethereum !== "undefined";
     },
@@ -84,18 +72,15 @@ export default defineComponent({
   },
   mounted: async function () {
     if (this.metaMaskInstalled) {
-      let network = networks.find(
-        (obj) => obj.chainId == window.ethereum.chainId
-      );
+      let provider = window.ethereum;
 
-      this.$store.commit("setNetwork", network);
-      let store = this.$store;
-      window.ethereum.on("chainChanged", function () {
-        console.log(arguments);
-        let network = networks.find(
-          (obj) => obj.chainId == window.ethereum.chainId
-        );
-        store.commit("setNetwork", network);
+      this.connectWallet();
+      provider.on("connect", () => {
+        this.connectWallet();
+      });
+
+      window.ethereum.on("chainChanged", () => {
+        this.updateNetwork();
       });
 
       let accounts = await window.ethereum.request({
@@ -119,7 +104,8 @@ export default defineComponent({
       setTimeout(() => evt.target.parentNode.classList.remove("copied"), 1000);
     },
     requestDefaultChain: async function () {
-      let chainId = "0x" + this.defaultNetwork.chainId.toString(16); // chainId must be in hexadecimal numbers
+      let chainId = "0x" + defaultChain.chainId.toString(16); // chainId must be in hexadecimal numbers
+
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId }],
@@ -129,16 +115,17 @@ export default defineComponent({
       if (this.metaMaskInstalled) {
         console.log("Connect wallet ...");
 
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
         let accounts = await window.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-
-        const signer = provider.getSigner();
-        let address = await signer.getAddress();
+          method: "eth_requestAccounts",
+        });
 
         this.$store.commit("setAccount", accounts[0]);
+        this.updateNetwork();
       }
+    },
+    updateNetwork() {
+      const network = getNetwork(parseInt(window.ethereum.chainId, 16));
+      this.$store.commit("setNetwork", network);
     },
   },
 });
