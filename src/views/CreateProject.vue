@@ -103,6 +103,7 @@ import ProjectRaise from "@/web3/projectRaise";
 
 const gaming: Project = {
   address: "asdasdasdasd",
+  creator: "0x3e0C626e174334455CF2fDf11C376331389885c2",
   title: "Fred the Knight",
   status: ProjectPhase.Investment,
   fundingGoal: 3000,
@@ -324,13 +325,16 @@ export default defineComponent({
           tierNFTContractAddresses: [],
         };
 
+        let failed = false;
         for (let i = 0; i < this.steps.length; i++) {
+          if (failed) break;
           this.steps[i].status = 1;
           try {
             let result = await this.steps[i].action(data);
             Object.assign(data, result);
           } catch (e) {
             this.steps[i].error = e.toString();
+            failed = true;
             break;
           }
           this.steps[i].status = 2;
@@ -344,32 +348,31 @@ export default defineComponent({
       /**
        * [Q/1] Do I need to create multiple TierNFT contracts.
        */
-      return "QmNipNwBuyHKbEAKkEzpo3F5bDaGFAJzCP9PCTznGJwqjY";
+      // return "QmNipNwBuyHKbEAKkEzpo3F5bDaGFAJzCP9PCTznGJwqjY";
 
-      // const node = await IPFS.create();
-      // const result = await node.add(
-      //   JSON.stringify({
-      //     title: this.project.title,
-      //     description: this.project.description,
-      //     link: this.project.link,
-      //   })
-      // );
-      // await node.stop();
-      // console.log(result.path);
-      // return { metadata: result.path };
+      const node = await IPFS.create();
+      const result = await node.add(
+        JSON.stringify({
+          title: this.project.title,
+          description: this.project.description,
+          link: this.project.link,
+        })
+      );
+      await node.stop();
+      return { metadata: result.path };
     },
-    deployProjectContract: async function () {
-      await this.timeout();
-      // const projectRaiseContractAddress =
-      //   await ProjectFactory.createProjectRaise(
-      //     BigNumber.from(this.project.fundingGoal),
-      //     BigNumber.from(Date.now()),
-      //     "",
-      //     this.milestoneReleaseDates,
-      //     this.milestoneReleasePercents
-      //   );
+    deployProjectContract: async function (data) {
+      // await this.timeout();
+      const projectRaiseContractAddress =
+        await ProjectFactory.createProjectRaise(
+          BigNumber.from(this.project.fundingGoal),
+          BigNumber.from(Date.now()),
+          "",
+          this.milestoneReleaseDates,
+          this.milestoneReleasePercents
+        );
 
-      // return { projectRaiseContractAddress };
+      return { projectRaiseContractAddress };
     },
     deployTierNFTs: async function (data) {
       let tierNFTContractAddresses = [];
@@ -393,8 +396,8 @@ export default defineComponent({
       await ProjectRaise.assignTiers(
         data.projectRaiseContractAddress,
         /*  
-   What is tierAmounts @assignTiers list? Address list of the NFTs? [Q/3] 
- */
+          What is tierAmounts @assignTiers list? Address list of the NFTs? [Q/3] 
+        */
         data.tierNFTContractAddresses,
         this.tierCosts,
         this.tierMaxBackers

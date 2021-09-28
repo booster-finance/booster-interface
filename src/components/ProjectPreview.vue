@@ -1,15 +1,23 @@
 <template>
-  <div class="project-preview">
+  <div class="project-preview" :class="{ own: isCreator }">
     <div class="main">
+      <div class="button" id="status" @click="changeStatus">
+        Status: {{ value.status }}
+      </div>
       <header>
         <h2>{{ value.title }}</h2>
+      </header>
+
+      <div class="addresses">
         <p>
+          <span>Contract:</span><br />
           {{ value.address }}
         </p>
-        <div class="button" @click="changeStatus">
-          Status: {{ value.status }}
-        </div>
-      </header>
+        <p>
+          <span>Creator:</span><br />
+          {{ value.creator }}
+        </p>
+      </div>
 
       <p>{{ value.description || "This project has no description." }}</p>
       <a :href="value.link" target="_blank">{{ value.link }}</a>
@@ -35,8 +43,8 @@
       <div id="contribute" v-if="funding">
         <span>Support Project Without Reward</span>
         <div class="row">
-          <input type="number" value="10" step="0.01" min="0" />
-          <div class="button">Fund</div>
+          <input v-model="customFunding" type="number" step="0.01" min="0" />
+          <div class="button" @click="fund">Fund</div>
         </div>
       </div>
 
@@ -51,11 +59,13 @@
         :max="value.fundingGoal"
       />
 
-      <h4 v-if="voting">Voting</h4>
-      <div class="row" v-if="voting">
-        <div class="button" id="no">No</div>
-        <div class="button" id="yes">Yes</div>
+      <h4 v-if="working">Voting</h4>
+      <div class="row" v-if="working">
+        <div class="button" id="no" @click="voteNo">No</div>
+        <div class="button" id="yes" @click="voteYes">Yes</div>
       </div>
+
+      <slider v-if="working" :max="votesToCancel" :value="cancelVotes" />
 
       <div class="info" v-if="completed">
         <font-awesome-icon class="icon" :icon="['fas', 'info-circle']" />
@@ -69,11 +79,11 @@
         <img :src="getTierImage(1)" alt="Image of tier." />
         <p>{{ getTierName(1) }}</p>
         <p>{{ value.tiers[1].cost }} $</p>
-        <div class="button" @click="() => (tier = null)">Withdraw Funds</div>
+        <div class="button" @click="withdrawFunds">Withdraw Funds</div>
       </div>
     </div>
 
-    <div id="get-funds">
+    <div id="get-funds" v-if="working && isCreator">
       <div class="button">Withdraw Milestone Funds</div>
     </div>
   </div>
@@ -97,25 +107,72 @@ export default defineComponent({
     return {
       tier: null,
       error: "",
+      cancelVotes: 100,
+      customFunding: 10,
     };
+  },
+  watch: {
+    network() {
+      this.updateProject();
+    },
+    account() {
+      this.updateProject();
+    },
+  },
+  mounted: function () {
+    this.updateProject();
   },
   components: { Slider, MilestoneSlider },
   computed: {
+    network: function () {
+      return this.$store.state.network;
+    },
+    account: function () {
+      return this.$store.state.account;
+    },
+    votesToCancel: function () {
+      let totalFunding = 0;
+      this.value.tiers.forEach((tier) => {
+        totalFunding += tier.cost * tier.backers;
+      });
+
+      return Math.ceil(totalFunding) / 2 + 1;
+    },
     funding: function () {
       return this.value?.status == 0;
     },
     working: function () {
       return this.value?.status == 1;
     },
-    voting: function () {
+    completed: function () {
       return this.value?.status == 2;
     },
-    completed: function () {
-      return this.value?.status == 3;
+    isCreator: function () {
+      if (this.$store.state.account)
+        return (
+          this.$store.state.account.toLowerCase() ===
+          this.value.creator.toLowerCase()
+        );
+      else return false;
     },
   },
-
   methods: {
+    withdrawFunds: async function () {
+      try {
+        await ProjectRaise.withdrawFunds(this.value.address);
+      } catch (e) {
+        console.error(e);
+        this.error = e.toString();
+      }
+    },
+    updateProject: async function () {
+      if (this.$store.network) {
+        this.cancelVotes = await ProjectRaise.getCancelVote(
+          this.value.address,
+          this.$store.account
+        );
+      }
+    },
     getTierImage: function (index: number) {
       if (this.value) {
         let img = Tier.getImage(index, this.value.tiers.length);
@@ -150,10 +207,29 @@ export default defineComponent({
       this.$emit("changeStatus", this.value);
     },
     async fundTier(tier) {
+      this.fund(tier.cost);
+    },
+    customFund: async function () {
+      this.fund(this.customFunding);
+    },
+    fund: async function (amount) {
       try {
-        await ProjectRaise.acceptBacker(this.value.address, tier.address);
+        await ProjectRaise.acceptBacker(this.value.address, amount);
       } catch (e) {
-        console.log(e);
+        this.error = e.toString();
+      }
+    },
+    voteNo: async function () {
+      this.vote(true);
+    },
+    voteYes: async function () {
+      this.vote(false);
+    },
+    vote: async function (cancel) {
+      try {
+        await ProjectRaise.vote(this.value.address, cancel);
+      } catch (e) {
+        console.error(e);
         this.error = e.toString();
       }
     },
@@ -290,5 +366,46 @@ h3 {
 .errorous {
   color: $red;
   font-weight: bold;
+}
+
+.own {
+  border-color: $primary;
+  border-width: 3px;
+  &:before {
+    content: "owner";
+    background-color: $primary;
+    padding: 3px 20px;
+    color: $white;
+    font-weight: bold;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    position: absolute;
+    top: 0;
+    transform: translateY(-100%);
+  }
+}
+
+#status {
+  position: absolute;
+  top: 0;
+  right: 30px;
+  transform: translateY(-100%);
+  box-sizing: border-box;
+  border: none;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.addresses {
+  display: flex;
+  font-size: 0.75rem;
+
+  span {
+    font-weight: bold;
+  }
+
+  > * {
+    flex: 1;
+  }
 }
 </style>

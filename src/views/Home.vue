@@ -36,6 +36,7 @@ import { ensureWeb3 } from "@/web3/utils";
 
 const gaming: Project = {
   address: "0xTHIS_IS_A_DUMMY_ADDRESS",
+  creator: "0x3e0C626e174334455CF2fDf11C376331389885c2",
   title: "Fred the Knight",
   status: ProjectPhase.Investment,
   link: "https://fred-the-game.com",
@@ -111,7 +112,7 @@ export default defineComponent({
      */
     changeStatus: function () {
       let project = this.debugProject;
-      project.status = (this.debugProject.status + 1) % 4;
+      project.status = (this.debugProject.status + 1) % 3;
       // this.projects.splice(0, 1, project);
 
       console.log("CHANGE STATUS", this.debugProject.status);

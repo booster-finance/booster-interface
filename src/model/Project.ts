@@ -5,6 +5,7 @@ export interface Milestone {
 
 export interface Project {
   address: string;
+  creator: string;
   status: ProjectPhase;
   title: string;
   description: string;

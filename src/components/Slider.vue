@@ -27,7 +27,9 @@ export default defineComponent({
       return `width: ${this.getPercentageText()} !important;`;
     },
     getPercentageText() {
-      return `${this.getRatio() * 100}%`;
+      const percent = this.getRatio() * 100;
+      if (percent % 1 == 0) return `${percent}%`;
+      else return `${percent.toFixed(2)}%`;
     },
     getRatio(): number {
       let pct = this.value / this.max;
@@ -54,7 +56,6 @@ $height: 10px;
   background-color: whitesmoke;
   border-radius: $height/2;
   box-shadow: inset 1px 1px 3px rgba(#333, 0.1);
-  //   overflow: hidden;
 }
 
 .slider-fill {
@@ -66,13 +67,8 @@ $height: 10px;
 }
 
 .slider-label {
-  //   position: absolute;
-  //   left: 50%;
-  //   top: 50%;
-  //   color: white;
   font-size: 0.75em;
   font-weight: bold;
   transform: translate(-50%, -55%);
-  //   text-shadow: 1px 1px 5px rgba(#333, 0.8);
 }
 </style>

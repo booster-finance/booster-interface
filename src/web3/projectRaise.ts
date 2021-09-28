@@ -33,9 +33,15 @@ class ProjectRaise {
     const fundingGoal = await contract.methods.fundingGoal().call();
     const status = await contract.methods.currentStatus().call();
     const milestones = await contract.methods.milestones().call();
+    const creator = await contract.methods.creator().call();
+
+    /**
+     * How to get the Tier List back? [Q/7]
+     */
 
     return {
       address,
+      creator,
       /**
        * MetaData
        */
@@ -52,23 +58,17 @@ class ProjectRaise {
     };
   };
 
-  static withdrawFunds = async function (address: string): Promise<string> {
+  static withdrawFunds = async function (address: string) {
     // TODO: Connect to current web3 provider (harmony)
     const web3 = await ensureWeb3();
 
-    let error: string;
-    try {
       const accounts = await web3.eth.getAccounts();
       const contract = await new web3.eth.Contract(
         ProjectRaiseABI as AbiItem[],
         address
       );
       await contract.methods.withdrawFunds().send({ from: accounts[0] });
-    } catch (e: any) {
-      error = e.message;
-    }
-
-    return error;
+    
   };
 
   static cancelProject = async function (address: string): Promise<string> {
@@ -159,26 +159,16 @@ class ProjectRaise {
     return error;
   };
 
-  static vote = async function (
-    address: string,
-    cancelVote: boolean
-  ): Promise<string> {
+  static vote = async function (address: string, cancelVote: boolean) {
     // TODO: Connect to current web3 provider (harmony)
     const web3 = await ensureWeb3();
 
-    let error: string;
-    try {
-      const accounts = await web3.eth.getAccounts();
-      const contract = await new web3.eth.Contract(
-        ProjectRaiseABI as AbiItem[],
-        address
-      );
-      await contract.methods.vote(cancelVote).send({ from: accounts[0] });
-    } catch (e: any) {
-      error = e.message;
-    }
-
-    return error;
+    const accounts = await web3.eth.getAccounts();
+    const contract = await new web3.eth.Contract(
+      ProjectRaiseABI as AbiItem[],
+      address
+    );
+    await contract.methods.vote(cancelVote).send({ from: accounts[0] });
   };
 
   static milestoneCheck = async function (address: string): Promise<string> {
