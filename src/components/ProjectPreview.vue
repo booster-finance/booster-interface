@@ -3,6 +3,9 @@
     <div class="main">
       <header>
         <h2>{{ value.title }}</h2>
+        <p>
+          {{ value.address }}
+        </p>
         <div class="button" @click="changeStatus">
           Status: {{ value.status }}
         </div>
@@ -37,6 +40,10 @@
         </div>
       </div>
 
+      <div class="errorous">
+        {{ this.error }}
+      </div>
+
       <h3 v-if="!completed">Funding</h3>
       <Slider
         v-if="!completed"
@@ -65,6 +72,10 @@
         <div class="button" @click="() => (tier = null)">Withdraw Funds</div>
       </div>
     </div>
+
+    <div id="get-funds">
+      <div class="button">Withdraw Milestone Funds</div>
+    </div>
   </div>
 </template>
 
@@ -75,6 +86,7 @@ import Tier from "../model/Tiers";
 import { Tier as TierInterface } from "../model/Project";
 import Slider from "./Slider.vue";
 import MilestoneSlider from "./MilestoneSlider.vue";
+import ProjectRaise from "@/web3/projectRaise";
 
 export default defineComponent({
   name: "ProjectPreview",
@@ -84,6 +96,7 @@ export default defineComponent({
   data: function () {
     return {
       tier: null,
+      error: "",
     };
   },
   components: { Slider, MilestoneSlider },
@@ -127,11 +140,22 @@ export default defineComponent({
         );
       } else return 0;
     },
+    /**
+     * Remove change status from ProjectPreview [T/1]
+     *
+     * This is just for debugging purposes in the finala app,
+     * it will be read from the smart contract.
+     */
     changeStatus() {
-      this.$emit("changeStatus");
+      this.$emit("changeStatus", this.value);
     },
-    fundTier(tier) {
-      this.tier = tier;
+    async fundTier(tier) {
+      try {
+        await ProjectRaise.acceptBacker(this.value.address, tier.address);
+      } catch (e) {
+        console.log(e);
+        this.error = e.toString();
+      }
     },
   },
 });
@@ -258,7 +282,13 @@ h3 {
   background-color: $red;
 }
 
+#get-funds,
 #withdraw {
   margin-top: 40px;
+}
+
+.errorous {
+  color: $red;
+  font-weight: bold;
 }
 </style>

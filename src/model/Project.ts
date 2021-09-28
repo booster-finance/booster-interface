@@ -4,7 +4,7 @@ export interface Milestone {
 }
 
 export interface Project {
-  id: number;
+  address: string;
   status: ProjectPhase;
   title: string;
   description: string;

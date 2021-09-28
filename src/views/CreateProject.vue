@@ -74,9 +74,13 @@
       <p>Creating project. Don't leave the site!</p>
 
       <div>
-        <pending-item :status="2">Create Metadata</pending-item>
-        <pending-item :status="1">Deploy Project Contract</pending-item>
-        <pending-item>Assign Tiers</pending-item>
+        <pending-item
+          v-for="(step, idx) of steps"
+          :status="step.status"
+          :key="'step-' + idx"
+          :error="step.error"
+          >{{ step.name }}</pending-item
+        >
       </div>
     </div>
   </div>
@@ -94,9 +98,11 @@ import web3utils from "web3-utils";
 import { BigNumber } from "@ethersproject/bignumber";
 import TierNFT from "@/web3/tierNFT";
 import PendingItem from "@/components/PendingItem.vue";
+import * as IPFS from "ipfs-core";
+import ProjectRaise from "@/web3/projectRaise";
 
 const gaming: Project = {
-  id: 0,
+  address: "asdasdasdasd",
   title: "Fred the Knight",
   status: ProjectPhase.Investment,
   fundingGoal: 3000,
@@ -150,6 +156,32 @@ export default defineComponent({
       created: false,
       deploying: false,
       errors: [],
+      steps: [
+        {
+          status: 0,
+          name: "Create Metadata",
+          error: "",
+          action: this.uploadMetaDataToIPFS,
+        },
+        {
+          status: 0,
+          name: "Deploy Project Contract",
+          error: "",
+          action: this.deployProjectContract,
+        },
+        {
+          status: 0,
+          name: "Create Tier NFTs",
+          error: "",
+          action: this.deployTierNFTs,
+        },
+        {
+          status: 0,
+          name: "Assign Tiers",
+          error: "",
+          action: this.assignTierNFTs,
+        },
+      ],
     };
   },
   watch: {
@@ -177,6 +209,15 @@ export default defineComponent({
         (milestone) => milestone.releasePercentage
       );
     },
+    tierCosts: function () {
+      return this.project.tiers.map((tier) => tier.cost);
+    },
+    tierBackers: function () {
+      return this.project.tiers.map((tier) => tier.backers);
+    },
+    tierMaxBackers: function () {
+      return this.project.tiers.map((tier) => tier.maxBackers);
+    },
     fundedProperly: function () {
       return this.totalFunding >= this.project.fundingGoal;
     },
@@ -196,6 +237,9 @@ export default defineComponent({
     },
   },
   methods: {
+    timeout: async function () {
+      return new Promise((resolve) => setTimeout(resolve, 2000));
+    },
     validate() {
       this.errors = [];
       if (!this.fundedProperly) {
@@ -270,30 +314,91 @@ export default defineComponent({
         this.deploying = true;
         console.log("Create");
 
-        let tierNftContract;
-        // try {
-        //   /* TODO: How to determine?! */
-        //   const proxyMintingAddress = "123";
-        //   tierNftContract = await TierNFT.createContract(proxyMintingAddress);
-        // } catch (e) {
-        //   this.errors = [e];
-        //   return;
-        // }
+        /**
+         * Create Metadata and upload to IPFS
+         */
 
-        // // createProjectRaise(fundingGoal: BigNumber, startTime: BigNumber, tokenURI: string, milestoneReleaseDates: [], milestoneReleasePercents: []) {
-        // const error = await ProjectFactory.createProjectRaise(
-        //   this.project.fundingGoal,
-        //   BigNumber.from(Date.now()),
-        //   tierNftContract.options.address,
-        //   this.milestoneReleaseDates,
-        //   this.milestoneReleasePercents
-        // );
+        let data = {
+          metadata: null,
+          projectRaiseContractAddress: null,
+          tierNFTContractAddresses: [],
+        };
 
-        // if (error) this.errors.push(error);
+        for (let i = 0; i < this.steps.length; i++) {
+          this.steps[i].status = 1;
+          try {
+            let result = await this.steps[i].action(data);
+            Object.assign(data, result);
+          } catch (e) {
+            this.steps[i].error = e.toString();
+            break;
+          }
+          this.steps[i].status = 2;
+        }
       } else {
         this.validated = false;
         this.deploying = false;
       }
+    },
+    uploadMetaDataToIPFS: async function () {
+      /**
+       * [Q/1] Do I need to create multiple TierNFT contracts.
+       */
+      return "QmNipNwBuyHKbEAKkEzpo3F5bDaGFAJzCP9PCTznGJwqjY";
+
+      // const node = await IPFS.create();
+      // const result = await node.add(
+      //   JSON.stringify({
+      //     title: this.project.title,
+      //     description: this.project.description,
+      //     link: this.project.link,
+      //   })
+      // );
+      // await node.stop();
+      // console.log(result.path);
+      // return { metadata: result.path };
+    },
+    deployProjectContract: async function () {
+      await this.timeout();
+      // const projectRaiseContractAddress =
+      //   await ProjectFactory.createProjectRaise(
+      //     BigNumber.from(this.project.fundingGoal),
+      //     BigNumber.from(Date.now()),
+      //     "",
+      //     this.milestoneReleaseDates,
+      //     this.milestoneReleasePercents
+      //   );
+
+      // return { projectRaiseContractAddress };
+    },
+    deployTierNFTs: async function (data) {
+      let tierNFTContractAddresses = [];
+      /**
+       * [Q/4] Do I need to create multiple TierNFT contracts.
+       */
+      try {
+        for (let i = 0; i < this.project.tiers.length; i++) {
+          let tierNftContract = await TierNFT.createContract(
+            data.projectRaiseContractAddress
+          );
+          tierNFTContractAddresses.push(tierNftContract.options.address);
+        }
+      } catch (e) {
+        this.errors = [e];
+        return null;
+      }
+      return { tierNFTContractAddresses };
+    },
+    assignTierNFTs: async function (data) {
+      await ProjectRaise.assignTiers(
+        data.projectRaiseContractAddress,
+        /*  
+   What is tierAmounts @assignTiers list? Address list of the NFTs? [Q/3] 
+ */
+        data.tierNFTContractAddresses,
+        this.tierCosts,
+        this.tierMaxBackers
+      );
     },
     addTier() {
       this.$data.project.tiers.push({

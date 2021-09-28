@@ -177,7 +177,7 @@ main {
   }
 
   &:active {
-    box-shadow: inset 1px 1px 5px rgba($color: $gray-70, $alpha: 0.6);
+    box-shadow: inset 1px 2px 5px rgba($color: black, $alpha: 1);
   }
 }
 

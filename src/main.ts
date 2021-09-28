@@ -4,6 +4,7 @@ import {
   faExclamationTriangle,
   faInfoCircle,
   faPlus,
+  faTimesCircle,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -17,6 +18,7 @@ library.add(faUser);
 library.add(faInfoCircle);
 library.add(faExclamationTriangle);
 library.add(faCheck);
+library.add(faTimesCircle)
 
 createApp(App)
   .use(store)

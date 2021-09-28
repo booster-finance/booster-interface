@@ -3,9 +3,56 @@ import { ensureWeb3 } from "./utils";
 
 import ProjectRaiseABI from "../../contracts/projectRaise.json";
 import { AbiItem } from "web3-utils";
+import { Project } from "@/model/Project";
+import * as IPFS from "ipfs-core";
 
 class ProjectRaise {
-  withdrawFunds = async function (address: string): Promise<string> {
+  static getProject = async function (address: string): Promise<Project> {
+    const web3 = await ensureWeb3();
+
+    const contract = await new web3.eth.Contract(
+      ProjectRaiseABI as AbiItem[],
+      address
+    );
+
+    const tokenURI = await contract.methods.tokenURI().call();
+    const node = await IPFS.create();
+
+    const source = node.cat(tokenURI);
+    const decoder = new TextDecoder();
+    let dataString = "";
+    for await (const chunk of source) {
+      dataString += decoder.decode(chunk);
+    }
+
+    const { title, description, link } = JSON.parse(dataString);
+
+    /**
+     * How to convert the properties received from the ProjectRaise contract? [Q/6]
+     */
+    const fundingGoal = await contract.methods.fundingGoal().call();
+    const status = await contract.methods.currentStatus().call();
+    const milestones = await contract.methods.milestones().call();
+
+    return {
+      address,
+      /**
+       * MetaData
+       */
+      title,
+      description,
+      link,
+      /**
+       * Contract Info
+       */
+      status,
+      fundingGoal,
+      tiers: [],
+      milestones,
+    };
+  };
+
+  static withdrawFunds = async function (address: string): Promise<string> {
     // TODO: Connect to current web3 provider (harmony)
     const web3 = await ensureWeb3();
 
@@ -24,7 +71,7 @@ class ProjectRaise {
     return error;
   };
 
-  cancelProject = async function (address: string): Promise<string> {
+  static cancelProject = async function (address: string): Promise<string> {
     // TODO: Connect to current web3 provider (harmony)
     const web3 = await ensureWeb3();
 
@@ -43,7 +90,7 @@ class ProjectRaise {
     return error;
   };
 
-  assignTiers = async function (
+  static assignTiers = async function (
     address: string,
     tierAmounts: [],
     tierRewards: [],
@@ -70,7 +117,9 @@ class ProjectRaise {
     return error;
   };
 
-  checkFundingSuccess = async function (address: string): Promise<string> {
+  static checkFundingSuccess = async function (
+    address: string
+  ): Promise<string> {
     // TODO: Connect to current web3 provider (harmony)
     const web3 = await ensureWeb3();
 
@@ -89,7 +138,7 @@ class ProjectRaise {
     return error;
   };
 
-  acceptBacker = async function (
+  static acceptBacker = async function (
     address: string,
     amount: BigNumber
   ): Promise<string> {
@@ -97,24 +146,20 @@ class ProjectRaise {
     const web3 = await ensureWeb3();
 
     let error: string;
-    try {
-      const accounts = await web3.eth.getAccounts();
-      const contract = await new web3.eth.Contract(
-        ProjectRaiseABI as AbiItem[],
-        address
-      );
-      // TODO: Make sure to convert values to correct decimal place
-      await contract.methods
-        .checkFundingSuccess(amount)
-        .send({ from: accounts[0] });
-    } catch (e: any) {
-      error = e.message;
-    }
+    const accounts = await web3.eth.getAccounts();
+    const contract = await new web3.eth.Contract(
+      ProjectRaiseABI as AbiItem[],
+      address
+    );
+    // TODO: Make sure to convert values to correct decimal place
+    await contract.methods
+      .checkFundingSuccess(amount)
+      .send({ from: accounts[0] });
 
     return error;
   };
 
-  vote = async function (
+  static vote = async function (
     address: string,
     cancelVote: boolean
   ): Promise<string> {
@@ -136,7 +181,7 @@ class ProjectRaise {
     return error;
   };
 
-  milestoneCheck = async function (address: string): Promise<string> {
+  static milestoneCheck = async function (address: string): Promise<string> {
     // TODO: Connect to current web3 provider (harmony)
     const web3 = await ensureWeb3();
 
@@ -155,7 +200,7 @@ class ProjectRaise {
     return error;
   };
 
-  withdrawRefund = async function (
+  static withdrawRefund = async function (
     address: string,
     amount: BigNumber
   ): Promise<string> {
@@ -179,7 +224,7 @@ class ProjectRaise {
     return error;
   };
 
-  getBackerRewards = async function (address: string, account: string) {
+  static getBackerRewards = async function (address: string, account: string) {
     // TODO: Connect to current web3 provider (harmony)
     const web3 = await ensureWeb3();
 
@@ -193,7 +238,7 @@ class ProjectRaise {
     return backerRewards;
   };
 
-  getAddressBacking = async function (address: string, account: string) {
+  static getAddressBacking = async function (address: string, account: string) {
     // TODO: Connect to current web3 provider (harmony)
     const web3 = await ensureWeb3();
 
@@ -207,7 +252,7 @@ class ProjectRaise {
     return addressBacking;
   };
 
-  getCancelVote = async function (address: string, account: string) {
+  static getCancelVote = async function (address: string, account: string) {
     // TODO: Connect to current web3 provider (harmony)
     const web3 = await ensureWeb3();
 
@@ -219,7 +264,7 @@ class ProjectRaise {
     return cancelVote;
   };
 
-  balanceOf = async function (address: string) {
+  static balanceOf = async function (address: string) {
     // TODO: Connect to current web3 provider (harmony)
     const web3 = await ensureWeb3();
 

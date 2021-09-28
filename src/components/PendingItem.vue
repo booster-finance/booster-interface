@@ -1,17 +1,26 @@
 <template>
   <div
     class="pending-item"
-    :class="{ completed: isCompleted, pending: isPending }"
+    :class="{ completed: isCompleted, pending: isPending, errorous }"
   >
     <font-awesome-icon
-      v-show="isCompleted"
+      v-show="isCompleted && !errorous"
       class="icon"
       :icon="['fas', 'check']"
     />
 
-    <spinner v-show="this.isPending" id="spinner" />
+    <font-awesome-icon
+      v-show="errorous"
+      class="icon"
+      :icon="['fas', 'times-circle']"
+    />
+
+    <spinner v-show="this.isPending && !errorous" id="spinner" />
     <span class="text">
       <slot />
+      <div v-if="errorous">
+        {{ error }}
+      </div>
     </span>
   </div>
 </template>
@@ -25,6 +34,7 @@ export default defineComponent({
   components: { Spinner },
   props: {
     status: Number,
+    error: String,
   },
   computed: {
     isPending: function () {
@@ -32,6 +42,9 @@ export default defineComponent({
     },
     isCompleted: function () {
       return this.status == 2;
+    },
+    errorous() {
+      return this.error != "";
     },
   },
 });
@@ -72,5 +85,11 @@ export default defineComponent({
 
 .text {
   margin-left: 30px;
+}
+
+.errorous {
+  border-color: $red !important;
+  background-color: $red !important;
+  color: $white !important;
 }
 </style>
