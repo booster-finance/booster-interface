@@ -10,7 +10,7 @@ const HARMONY_TESTNET: Network = {
   chainId: 1666700000,
   name: "Harmony Testnet",
   rpc: "https: api.s0.b.hmny.io",
-  factoryContractAddress: "0xdbe24C380b968Ca636DAb38B728F0c993A202742",
+  factoryContractAddress: "0x9F1A020b95Fe2a0b56862dF6e8C976694f466b50",
   ustContractAddress: "0xe548bf086b4baa6c8a5ca63ac55c79f5b9af25f7",
 };
 

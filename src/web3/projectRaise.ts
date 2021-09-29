@@ -114,6 +114,9 @@ class ProjectRaise {
       ProjectRaiseABI as AbiItem[],
       address
     );
+    console.log(tierRewards);
+    console.log(tierAmounts);
+    console.log(maxBackers);
     // TODO: Make sure to convert values to correct decimal place
     await contract.methods
       .assignTiers(tierAmounts, tierRewards, maxBackers)
@@ -256,18 +259,6 @@ class ProjectRaise {
       .getBackerRewards(account)
       .call();
     return backerRewards;
-  };
-
-  static getFundingTiers = async function (address: string) {
-    // TODO: Connect to current web3 provider (harmony)
-    const web3 = await ensureWeb3();
-
-    const contract = await new web3.eth.Contract(
-      ProjectRaiseABI as AbiItem[],
-      address
-    );
-    const fundingTiers = await contract.methods.getFundingTiers().call();
-    return fundingTiers;
   };
 
   static getAddressBacking = async function (address: string, account: string) {

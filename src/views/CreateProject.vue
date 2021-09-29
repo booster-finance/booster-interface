@@ -399,8 +399,8 @@ export default defineComponent({
     assignTierNFTs: async function (data) {
       await ProjectRaise.assignTiers(
         data.projectRaiseContractAddress,
-        data.tierNFTContractAddresses,
         this.tierCosts,
+        data.tierNFTContractAddresses,
         this.tierMaxBackers
       );
     },
