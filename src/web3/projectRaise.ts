@@ -5,6 +5,7 @@ import ProjectRaiseABI from "../../contracts/projectRaise.json";
 import { AbiItem } from "web3-utils";
 import { Project } from "@/model/Project";
 import * as IPFS from "ipfs-core";
+import store from "../store";
 
 class ProjectRaise {
   static getProject = async function (address: string): Promise<Project> {
@@ -62,12 +63,11 @@ class ProjectRaise {
     // TODO: Connect to current web3 provider (harmony)
     const web3 = await ensureWeb3();
 
-      const accounts = await web3.eth.getAccounts();
       const contract = await new web3.eth.Contract(
         ProjectRaiseABI as AbiItem[],
         address
       );
-      await contract.methods.withdrawFunds().send({ from: accounts[0] });
+      await contract.methods.withdrawFunds().send({ from: store.state.account });
     
   };
 
@@ -77,12 +77,11 @@ class ProjectRaise {
 
     let error: string;
     try {
-      const accounts = await web3.eth.getAccounts();
       const contract = await new web3.eth.Contract(
         ProjectRaiseABI as AbiItem[],
         address
       );
-      await contract.methods.cancelProject().send({ from: accounts[0] });
+      await contract.methods.cancelProject().send({ from: store.state.account });
     } catch (e: any) {
       error = e.message;
     }
@@ -101,7 +100,6 @@ class ProjectRaise {
 
     let error: string;
     try {
-      const accounts = await web3.eth.getAccounts();
       const contract = await new web3.eth.Contract(
         ProjectRaiseABI as AbiItem[],
         address
@@ -109,7 +107,7 @@ class ProjectRaise {
       // TODO: Make sure to convert values to correct decimal place
       await contract.methods
         .assignTiers(tierAmounts, tierRewards, maxBackers)
-        .send({ from: accounts[0] });
+        .send({ from: store.state.account });
     } catch (e: any) {
       error = e.message;
     }
@@ -125,12 +123,11 @@ class ProjectRaise {
 
     let error: string;
     try {
-      const accounts = await web3.eth.getAccounts();
       const contract = await new web3.eth.Contract(
         ProjectRaiseABI as AbiItem[],
         address
       );
-      await contract.methods.checkFundingSuccess().send({ from: accounts[0] });
+      await contract.methods.checkFundingSuccess().send({ from: store.state.account });
     } catch (e: any) {
       error = e.message;
     }
@@ -146,7 +143,6 @@ class ProjectRaise {
     const web3 = await ensureWeb3();
 
     let error: string;
-    const accounts = await web3.eth.getAccounts();
     const contract = await new web3.eth.Contract(
       ProjectRaiseABI as AbiItem[],
       address
@@ -154,7 +150,7 @@ class ProjectRaise {
     // TODO: Make sure to convert values to correct decimal place
     await contract.methods
       .checkFundingSuccess(amount)
-      .send({ from: accounts[0] });
+      .send({ from: store.state.account });
 
     return error;
   };
@@ -163,12 +159,11 @@ class ProjectRaise {
     // TODO: Connect to current web3 provider (harmony)
     const web3 = await ensureWeb3();
 
-    const accounts = await web3.eth.getAccounts();
     const contract = await new web3.eth.Contract(
       ProjectRaiseABI as AbiItem[],
       address
     );
-    await contract.methods.vote(cancelVote).send({ from: accounts[0] });
+    await contract.methods.vote(cancelVote).send({ from: store.state.account });
   };
 
   static milestoneCheck = async function (address: string): Promise<string> {
@@ -177,12 +172,11 @@ class ProjectRaise {
 
     let error: string;
     try {
-      const accounts = await web3.eth.getAccounts();
       const contract = await new web3.eth.Contract(
         ProjectRaiseABI as AbiItem[],
         address
       );
-      await contract.methods.milestoneCheck().send({ from: accounts[0] });
+      await contract.methods.milestoneCheck().send({ from: store.state.account });
     } catch (e: any) {
       error = e.message;
     }
@@ -199,14 +193,13 @@ class ProjectRaise {
 
     let error: string;
     try {
-      const accounts = await web3.eth.getAccounts();
       const contract = await new web3.eth.Contract(
         ProjectRaiseABI as AbiItem[],
         address
       );
       const value = web3.utils.toWei(String(amount), "ether");
       // TODO: Make sure to convert values to correct decimal place
-      await contract.methods.withdrawRefund(amount).send({ from: accounts[0] });
+      await contract.methods.withdrawRefund(amount).send({ from: store.state.account });
     } catch (e: any) {
       error = e.message;
     }
@@ -226,6 +219,20 @@ class ProjectRaise {
       .getBackerRewards(account)
       .call();
     return backerRewards;
+  };
+
+  static getFundingTiers = async function (address: string) {
+    // TODO: Connect to current web3 provider (harmony)
+    const web3 = await ensureWeb3();
+
+    const contract = await new web3.eth.Contract(
+      ProjectRaiseABI as AbiItem[],
+      address
+    );
+    const fundingTiers = await contract.methods
+      .getFundingTiers()
+      .call();
+    return fundingTiers;
   };
 
   static getAddressBacking = async function (address: string, account: string) {

@@ -124,9 +124,7 @@ export default defineComponent({
     loadProjects: async function () {
       console.log("Load projects ... ");
       if (this.network?.factoryContractAddress) {
-        let projectAdresses = await ProjectFactory.getProjects(
-          this.network.factoryContractAddress
-        );
+        let projectAdresses = await ProjectFactory.getProjects();
 
         const web3 = ensureWeb3();
         /**

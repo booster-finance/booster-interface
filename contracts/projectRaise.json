@@ -165,54 +165,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "backerRewards",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "tierAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "backings",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "balanceOf",
     "outputs": [
@@ -246,25 +198,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "cancelVotes",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "checkFundingSuccess",
     "outputs": [],
@@ -279,19 +212,6 @@
         "internalType": "address",
         "name": "",
         "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "cummulativeReleasePercent",
-    "outputs": [
-      {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
       }
     ],
     "stateMutability": "view",
@@ -317,35 +237,6 @@
       {
         "internalType": "enum ProjectRaise.Status",
         "name": "",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "fundingAmountToTier",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "reward",
-        "type": "address"
-      },
-      {
-        "internalType": "uint8",
-        "name": "maxBackers",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint8",
-        "name": "currentBackers",
         "type": "uint8"
       }
     ],
@@ -436,38 +327,39 @@
   },
   {
     "inputs": [],
-    "name": "milestoneCheck",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "milestones",
+    "name": "getFundingTiers",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "releaseDate",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint8",
-        "name": "releasePercent",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint256",
-        "name": "currentVotesAgainst",
-        "type": "uint256"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "reward",
+            "type": "address"
+          },
+          {
+            "internalType": "uint8",
+            "name": "maxBackers",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "currentBackers",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct ProjectRaise.FundingTier[]",
+        "name": "tiers",
+        "type": "tuple[]"
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "milestoneCheck",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

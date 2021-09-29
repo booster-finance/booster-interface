@@ -38,11 +38,18 @@ class ProjectFactory {
     // TODO: Connect to current web3 provider (harmony)
     const web3 = await ensureWeb3();
 
-    const accounts = await web3.eth.getAccounts();
     const contract = await new web3.eth.Contract(
       ProjectFactoryABI.abi as AbiItem[],
-      store.state.network.factoryContract
+      store.state.network.factoryContractAddress
     );
+    const convertedMilestoneReleaseDates = [];
+    const convertedMilestoneReleasePercents = [];
+    for (const date in milestoneReleaseDates) {
+      convertedMilestoneReleaseDates.push(BigNumber.from(milestoneReleaseDates[date]).toHexString());
+    }
+    for (const percent in milestoneReleasePercents) {
+      convertedMilestoneReleasePercents.push(BigNumber.from(milestoneReleasePercents[percent]).toHexString());
+    }
     const projectRaiseContractAddress = await contract.methods
       .createProjectRaise(
         store.state.network.ustContractAddress,
@@ -53,23 +60,23 @@ class ProjectFactory {
         Reimplement TokenURI into ‘createProjectRaise’ currently 0 [Q/2] 
          */
         0,
-        milestoneReleaseDates,
-        milestoneReleasePercents
+        convertedMilestoneReleaseDates,
+        convertedMilestoneReleasePercents
       )
-      .send({ from: accounts[0] });
+      .send({ from: store.state.account, gas: 50000000 });
 
     return projectRaiseContractAddress;
   };
 
-  static getProjects = async function (address: string) {
+  static getProjects = async function () {
     const web3 = await ensureWeb3();
 
     const contract = await new web3.eth.Contract(
       ProjectFactoryABI.abi as AbiItem[],
-      address
+      store.state.network.factoryContractAddress
     );
-    const projectBalance = await contract.methods.getProjects().call();
-    return projectBalance;
+    const projects = await contract.methods.getProjects().call();
+    return projects;
   };
 }
 

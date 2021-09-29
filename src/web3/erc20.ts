@@ -1,7 +1,10 @@
 import Web3 from "web3";
+
+import { ensureWeb3 } from "./utils";
 import { BigNumber } from "@ethersproject/bignumber";
 import { AbiItem } from "web3-utils";
 import * as ERC20ABI from "../../contracts/erc20.json";
+import store from "../store";
 
 
 class ERC20 {
@@ -10,15 +13,10 @@ class ERC20 {
     spender: string,
     amount: BigNumber
   ) {
-    // TODO: Connect to current web3 provider (harmony)
-    const web3 = await new Web3(this.$store.state.network);
-    if (!web3) {
-      return undefined;
-    }
+    const web3 = await ensureWeb3();
 
     let error: string;
     try {
-      const accounts = await web3.eth.getAccounts();
       const contract = await new web3.eth.Contract(
         ERC20ABI as AbiItem[],
         address
@@ -26,7 +24,7 @@ class ERC20 {
       // TODO: Make sure decimal placing is correct
       await contract.methods
         .approve(spender, amount)
-        .send({ from: accounts[0] });
+        .send({ from: store.state.account });
     } catch (e: any) {
       error = e.message;
     }

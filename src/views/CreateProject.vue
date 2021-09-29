@@ -363,15 +363,17 @@ export default defineComponent({
     },
     deployProjectContract: async function (data) {
       // await this.timeout();
-      const projectRaiseContractAddress =
+      let _ =
         await ProjectFactory.createProjectRaise(
           BigNumber.from(this.project.fundingGoal),
-          BigNumber.from(Date.now()),
+          BigNumber.from(Date.now()).add(BigNumber.from(10000)),
           "",
           this.milestoneReleaseDates,
           this.milestoneReleasePercents
         );
-
+      let projectRaiseContractAddresses = await ProjectFactory.getProjects()
+      let projectRaiseContractAddress = projectRaiseContractAddresses[projectRaiseContractAddresses.length - 1];
+      data.projectRaiseContractAddress = projectRaiseContractAddress;
       return { projectRaiseContractAddress };
     },
     deployTierNFTs: async function (data) {
