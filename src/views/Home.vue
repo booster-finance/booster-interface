@@ -10,13 +10,19 @@
      * This is just for debugging purposes in the finala app,
      * it will be read from the smart contract.
      */ -->
-    <ProjectPreview
-      v-if="!loading && projects.length > 0"
-      :value="projects[0]"
-      @changeStatus="changeStatus"
-    />
+    <div class="projects" v-if="!loading">
+      <ProjectPreview
+        v-for="project of projects"
+      :key="`project-addr-${project.address}`"
+        :value="project"
+      />
+    </div>
 
-    <project-preview :value="debugProject" @changeStatus="changeStatus" />
+    <div v-if="projects.length == 0" class="button" @click="update">
+      Refresh
+    </div>
+
+    <!-- <project-preview :value="debugProject" @changeStatus="changeStatus" /> -->
 
     <div class="button" id="createProject" @click="createProject">
       <font-awesome-icon class="icon" :icon="['fas', 'plus']" />
@@ -125,18 +131,21 @@ export default defineComponent({
       console.log("Load projects ... ");
       if (this.network?.factoryContractAddress) {
         let projectAdresses = await ProjectFactory.getProjects();
+        console.log(projectAdresses);
 
-        const web3 = ensureWeb3();
+        const web3 = await ensureWeb3();
+
         /**
          * When calling ProjectFactory.getProjects we should get back a list of addresses, right? How can I get the single project from the address? [Q/5]
          */
 
-        // projectAdresses.forEach((address) => {
-        //   const contract = await new web3.eth.Contract(
-        //     ProjectRaiseABI as AbiItem[],
-        //     address
-        //   );
-        // });
+        let projects = [];
+        for (let address of projectAdresses) {
+          console.log(address);
+          let project = await ProjectRaise.getProject(address);
+          projects.push(project);
+        }
+        this.projects = projects;
 
         this.loading = false;
         console.log("Projects loaded ", this.projects);
@@ -149,12 +158,18 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 #createProject {
-  position: absolute;
+  position: fixed;
   bottom: 30px;
   right: 30px;
   width: 74px;
   height: 74px;
   border-radius: 37px;
   box-sizing: border-box;
+}
+
+.projects {
+  >* {
+    margin: 20px;
+  }
 }
 </style>

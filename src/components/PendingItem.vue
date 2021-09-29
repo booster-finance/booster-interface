@@ -21,6 +21,10 @@
       <div v-if="errorous">
         {{ error }}
       </div>
+
+      <div v-if="info">
+        {{ info }}
+      </div>
     </span>
   </div>
 </template>
@@ -35,6 +39,7 @@ export default defineComponent({
   props: {
     status: Number,
     error: String,
+    info: String,
   },
   computed: {
     isPending: function () {
@@ -91,5 +96,9 @@ export default defineComponent({
   border-color: $red !important;
   background-color: $red !important;
   color: $white !important;
+}
+
+.info {
+  background-color: white;
 }
 </style>

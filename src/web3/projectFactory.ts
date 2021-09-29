@@ -56,10 +56,7 @@ class ProjectFactory {
         store.state.account,
         fundingGoal.toHexString(),
         startTime.toHexString(),
-        /* 
-        Reimplement TokenURI into ‘createProjectRaise’ currently 0 [Q/2] 
-         */
-        0,
+        tokenURI,
         convertedMilestoneReleaseDates,
         convertedMilestoneReleasePercents
       )

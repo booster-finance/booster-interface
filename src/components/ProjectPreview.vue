@@ -4,6 +4,11 @@
       <div class="button" id="status" @click="changeStatus">
         Status: {{ value.status }}
       </div>
+
+      <div class="button" id="update" @click="update">
+        <font-awesome-icon class="icon" :icon="['fas', 'sync']" />
+      </div>
+
       <header>
         <h2>{{ value.title }}</h2>
       </header>
@@ -157,6 +162,10 @@ export default defineComponent({
     },
   },
   methods: {
+    update: async function () {
+      let project = await ProjectRaise.getProject(this.value.address);
+      console.log(project);
+    },
     withdrawFunds: async function () {
       try {
         await ProjectRaise.withdrawFunds(this.value.address);
@@ -406,6 +415,26 @@ h3 {
 
   > * {
     flex: 1;
+  }
+}
+
+#update {
+  position: absolute;
+  top: 35px;
+  right: 30px;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  box-sizing: border-box;
+  z-index: 1;
+  cursor: pointer;
+
+  .icon {
+    transition: transform 0.3s;
+  }
+
+  &:active .icon {
+    transform: rotate(-30deg);
   }
 }
 </style>

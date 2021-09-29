@@ -79,6 +79,7 @@
           :status="step.status"
           :key="'step-' + idx"
           :error="step.error"
+          :info="step.info"
           >{{ step.name }}</pending-item
         >
       </div>
@@ -163,24 +164,28 @@ export default defineComponent({
           name: "Create Metadata",
           error: "",
           action: this.uploadMetaDataToIPFS,
+          info: "",
         },
         {
           status: 0,
           name: "Deploy Project Contract",
           error: "",
           action: this.deployProjectContract,
+          info: "",
         },
         {
           status: 0,
           name: "Create Tier NFTs",
           error: "",
           action: this.deployTierNFTs,
+          info: "",
         },
         {
           status: 0,
           name: "Assign Tiers",
           error: "",
           action: this.assignTierNFTs,
+          info: "",
         },
       ],
     };
@@ -313,7 +318,6 @@ export default defineComponent({
     async create() {
       if (this.validate()) {
         this.deploying = true;
-        console.log("Create");
 
         /**
          * Create Metadata and upload to IPFS
@@ -330,7 +334,7 @@ export default defineComponent({
           if (failed) break;
           this.steps[i].status = 1;
           try {
-            let result = await this.steps[i].action(data);
+            let result = await this.steps[i].action(data, this.steps[i]);
             Object.assign(data, result);
           } catch (e) {
             this.steps[i].error = e.toString();
@@ -344,12 +348,7 @@ export default defineComponent({
         this.deploying = false;
       }
     },
-    uploadMetaDataToIPFS: async function () {
-      /**
-       * [Q/1] Do I need to create multiple TierNFT contracts.
-       */
-      // return "QmNipNwBuyHKbEAKkEzpo3F5bDaGFAJzCP9PCTznGJwqjY";
-
+    uploadMetaDataToIPFS: async function (_, step) {
       const node = await IPFS.create();
       const result = await node.add(
         JSON.stringify({
@@ -359,47 +358,47 @@ export default defineComponent({
         })
       );
       await node.stop();
+      step.info = `IPFS Hash: ${result.path}`;
       return { metadata: result.path };
     },
-    deployProjectContract: async function (data) {
-      // await this.timeout();
-      let _ =
-        await ProjectFactory.createProjectRaise(
-          BigNumber.from(this.project.fundingGoal),
-          BigNumber.from(Date.now()).add(BigNumber.from(10000)),
-          "",
-          this.milestoneReleaseDates,
-          this.milestoneReleasePercents
-        );
-      let projectRaiseContractAddresses = await ProjectFactory.getProjects()
-      let projectRaiseContractAddress = projectRaiseContractAddresses[projectRaiseContractAddresses.length - 1];
+    deployProjectContract: async function (data, step) {
+      console.log(data.metadata);
+      await ProjectFactory.createProjectRaise(
+        BigNumber.from(this.project.fundingGoal),
+        BigNumber.from(Date.now()).add(BigNumber.from(10000)),
+        data.metadata,
+        this.milestoneReleaseDates,
+        this.milestoneReleasePercents
+      );
+      let projectRaiseContractAddresses = await ProjectFactory.getProjects();
+      let projectRaiseContractAddress =
+        projectRaiseContractAddresses[projectRaiseContractAddresses.length - 1];
       data.projectRaiseContractAddress = projectRaiseContractAddress;
+      step.info = `Contract: ${projectRaiseContractAddress}`;
       return { projectRaiseContractAddress };
     },
-    deployTierNFTs: async function (data) {
+    deployTierNFTs: async function (data, step) {
       let tierNFTContractAddresses = [];
       /**
        * [Q/4] Do I need to create multiple TierNFT contracts.
        */
-      try {
-        for (let i = 0; i < this.project.tiers.length; i++) {
-          let tierNftContract = await TierNFT.createContract(
-            data.projectRaiseContractAddress
-          );
-          tierNFTContractAddresses.push(tierNftContract.options.address);
-        }
-      } catch (e) {
-        this.errors = [e];
-        return null;
+      for (let i = 0; i < this.project.tiers.length; i++) {
+        step.info = `Deploy (1/${this.project.tiers.length})`;
+        let tierNftContract = await TierNFT.createContract(
+          data.projectRaiseContractAddress
+        );
+        tierNFTContractAddresses.push(tierNftContract.options.address);
       }
+
+      step.info = `Deployed (${this.project.tiers.length}/${
+        this.project.tiers.length
+      }): ${tierNFTContractAddresses.toString()}`;
+
       return { tierNFTContractAddresses };
     },
     assignTierNFTs: async function (data) {
       await ProjectRaise.assignTiers(
         data.projectRaiseContractAddress,
-        /*  
-          What is tierAmounts @assignTiers list? Address list of the NFTs? [Q/3] 
-        */
         data.tierNFTContractAddresses,
         this.tierCosts,
         this.tierMaxBackers

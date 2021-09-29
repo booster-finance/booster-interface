@@ -4,6 +4,7 @@ import {
   faExclamationTriangle,
   faInfoCircle,
   faPlus,
+  faSync,
   faTimesCircle,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
@@ -19,6 +20,7 @@ library.add(faInfoCircle);
 library.add(faExclamationTriangle);
 library.add(faCheck);
 library.add(faTimesCircle)
+library.add(faSync)
 
 createApp(App)
   .use(store)
