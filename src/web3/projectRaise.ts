@@ -207,6 +207,32 @@ class ProjectRaise {
     return error;
   };
 
+  static getFundingTiers = async function (address: string) {
+    const web3 = await ensureWeb3();
+
+    const contract = await new web3.eth.Contract(
+      ProjectRaiseABI as AbiItem[],
+      address
+    );
+    const fundingTiers = await contract.methods
+      .getFundingTiers()
+      .call();
+    return fundingTiers;
+  };
+
+  static getMilestones = async function (address: string) {
+    const web3 = await ensureWeb3();
+
+    const contract = await new web3.eth.Contract(
+      ProjectRaiseABI as AbiItem[],
+      address
+    );
+    const milestones = await contract.methods
+      .getMilestones()
+      .call();
+    return milestones;
+  };
+
   static getBackerRewards = async function (address: string, account: string) {
     // TODO: Connect to current web3 provider (harmony)
     const web3 = await ensureWeb3();
