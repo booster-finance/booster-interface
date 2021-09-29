@@ -357,6 +357,36 @@
   },
   {
     "inputs": [],
+    "name": "getMilestones",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "releaseDate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint8",
+            "name": "releasePercent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "currentVotesAgainst",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ProjectRaise.Milestone[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "milestoneCheck",
     "outputs": [],
     "stateMutability": "nonpayable",
