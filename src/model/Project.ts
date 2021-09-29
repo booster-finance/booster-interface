@@ -10,6 +10,7 @@ export interface Project {
   title: string;
   description: string;
   fundingGoal: number;
+  totalFunding: number;
   link: string;
   tiers: Tier[];
   milestones: Milestone[];
@@ -23,12 +24,8 @@ export enum ProjectPhase {
 }
 
 export interface Tier {
+  address: string;
   backers: number;
   maxBackers: number;
   cost: number;
-}
-
-export interface Reward {
-  title: string;
-  description: string;
 }

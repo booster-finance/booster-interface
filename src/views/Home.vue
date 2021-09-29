@@ -4,6 +4,8 @@
 
     <p v-if="!loading && projects.length == 0">No projects were created yet</p>
 
+    <!-- <project-preview :value="debugProject" @changeStatus="changeStatus" /> -->
+
     <!-- /**
      * Remove change status from ProjectPreview [T/1]
      *
@@ -13,7 +15,7 @@
     <div class="projects" v-if="!loading">
       <ProjectPreview
         v-for="project of projects"
-      :key="`project-addr-${project.address}`"
+        :key="`project-addr-${project.address}`"
         :value="project"
       />
     </div>
@@ -21,8 +23,6 @@
     <div v-if="projects.length == 0" class="button" @click="update">
       Refresh
     </div>
-
-    <!-- <project-preview :value="debugProject" @changeStatus="changeStatus" /> -->
 
     <div class="button" id="createProject" @click="createProject">
       <font-awesome-icon class="icon" :icon="['fas', 'plus']" />
@@ -47,6 +47,7 @@ const gaming: Project = {
   status: ProjectPhase.Investment,
   link: "https://fred-the-game.com",
   fundingGoal: 3000,
+  totalFunding: 0,
   description:
     "It's the best point and click adventure ever made. Fred the Knight has to find his big love Princess Penelope.",
   tiers: [
@@ -54,29 +55,32 @@ const gaming: Project = {
       backers: 75,
       maxBackers: 100,
       cost: 10,
+      address: "",
     },
     {
       backers: 15,
       maxBackers: 50,
       cost: 50,
+      address: "",
     },
     {
       backers: 3,
       maxBackers: 10,
       cost: 150,
+      address: "",
     },
   ],
   milestones: [
     {
-      releaseDate: Date.now(),
+      releaseDate: Date.now() - 100000000000,
       releasePercentage: 10,
     },
     {
-      releaseDate: Date.now() + 4000000000,
+      releaseDate: Date.now() - 9000000000,
       releasePercentage: 20,
     },
     {
-      releaseDate: Date.now() + 6000000000,
+      releaseDate: Date.now() - 7000000000,
       releasePercentage: 50,
     },
     {
@@ -168,7 +172,7 @@ export default defineComponent({
 }
 
 .projects {
-  >* {
+  > * {
     margin: 20px;
   }
 }

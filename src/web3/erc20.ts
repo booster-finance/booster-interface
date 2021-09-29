@@ -1,5 +1,3 @@
-import Web3 from "web3";
-
 import { ensureWeb3 } from "./utils";
 import { BigNumber } from "@ethersproject/bignumber";
 import { AbiItem } from "web3-utils";

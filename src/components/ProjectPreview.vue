@@ -102,6 +102,9 @@ import { Tier as TierInterface } from "../model/Project";
 import Slider from "./Slider.vue";
 import MilestoneSlider from "./MilestoneSlider.vue";
 import ProjectRaise from "@/web3/projectRaise";
+import { ensureWeb3 } from "@/web3/utils";
+import * as ERC20ABI from "../../contracts/erc20.json";
+import { AbiItem } from "web3-utils";
 
 export default defineComponent({
   name: "ProjectPreview",
@@ -136,11 +139,7 @@ export default defineComponent({
       return this.$store.state.account;
     },
     votesToCancel: function () {
-      let totalFunding = 0;
-      this.value.tiers.forEach((tier) => {
-        totalFunding += tier.cost * tier.backers;
-      });
-
+      const totalFunding = this.value.totalFunding;
       return Math.ceil(totalFunding) / 2 + 1;
     },
     funding: function () {
@@ -223,6 +222,16 @@ export default defineComponent({
     },
     fund: async function (amount) {
       try {
+        let web3 = await ensureWeb3();
+        let stablecoinContract = await new web3.eth.Contract(
+          ERC20ABI.abi as AbiItem[],
+          this.$store.state.network.ustContractAddress
+        );
+
+        await stablecoinContract.methods
+          .approve(this.value.address, amount)
+          .send({ from: this.$store.state.account });
+
         await ProjectRaise.acceptBacker(this.value.address, amount);
       } catch (e) {
         this.error = e.toString();

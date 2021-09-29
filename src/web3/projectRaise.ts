@@ -18,7 +18,6 @@ class ProjectRaise {
 
     const tokenURI = await contract.methods.tokenURI().call();
 
-    console.log(tokenURI);
     let title, description, link;
     if (tokenURI && tokenURI !== "0") {
       const node = await IPFS.create();
@@ -42,11 +41,28 @@ class ProjectRaise {
     /**
      * How to convert the properties received from the ProjectRaise contract? [Q/6]
      */
+    const totalFunding = await contract.methods.totalBackingAmount().call();
     const fundingGoal = await contract.methods.fundingGoal().call();
     const status = await contract.methods.currentStatus().call();
-    // const milestones = await contract.methods.milestones().call();
     const creator = await contract.methods.creator().call();
 
+    let milestones = await contract.methods.getMilestones().call();
+    milestones = milestones.map((milestone) => {
+      return {
+        releaseDate: parseInt(milestone[0]),
+        releasePercentage: parseInt(milestone[1]),
+      };
+    });
+
+    let tiers = await contract.methods.getFundingTiers().call();
+    tiers = tiers.map((tier) => {
+      return {
+        address: tier.reward,
+        cost: 0,
+        backers: parseInt(tier.currentBackers),
+        maxBackers: parseInt(tier.maxBackers),
+      };
+    });
     /**
      * How to get the Tier List back? [Q/7]
      */
@@ -65,8 +81,9 @@ class ProjectRaise {
        */
       status,
       fundingGoal,
-      tiers: [],
-      milestones: [],
+      totalFunding,
+      tiers,
+      milestones,
     };
   };
 
@@ -159,7 +176,7 @@ class ProjectRaise {
     );
     // TODO: Make sure to convert values to correct decimal place
     await contract.methods
-      .checkFundingSuccess(amount)
+      .acceptBacker(amount)
       .send({ from: store.state.account });
 
     return error;
@@ -228,9 +245,7 @@ class ProjectRaise {
       ProjectRaiseABI as AbiItem[],
       address
     );
-    const fundingTiers = await contract.methods
-      .getFundingTiers()
-      .call();
+    const fundingTiers = await contract.methods.getFundingTiers().call();
     return fundingTiers;
   };
 
@@ -241,9 +256,7 @@ class ProjectRaise {
       ProjectRaiseABI as AbiItem[],
       address
     );
-    const milestones = await contract.methods
-      .getMilestones()
-      .call();
+    const milestones = await contract.methods.getMilestones().call();
     return milestones;
   };
 

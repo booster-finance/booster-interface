@@ -1,7 +1,7 @@
 <template>
   <div id="slider" class="slider">
     <div class="slider-fill" :style="getWidth()"></div>
-    <span class="slider-label"
+    <span v-if="!notext" class="slider-label"
       >{{ text }} {{ value }} / {{ max }} ({{ this.getPercentageText() }})</span
     >
   </div>
@@ -21,6 +21,7 @@ export default defineComponent({
       default: 0,
     },
     text: String,
+    notext: Boolean,
   },
   methods: {
     getWidth() {

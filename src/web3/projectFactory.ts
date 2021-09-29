@@ -45,10 +45,14 @@ class ProjectFactory {
     const convertedMilestoneReleaseDates = [];
     const convertedMilestoneReleasePercents = [];
     for (const date in milestoneReleaseDates) {
-      convertedMilestoneReleaseDates.push(BigNumber.from(milestoneReleaseDates[date]).toHexString());
+      convertedMilestoneReleaseDates.push(
+        BigNumber.from(milestoneReleaseDates[date]).toHexString()
+      );
     }
     for (const percent in milestoneReleasePercents) {
-      convertedMilestoneReleasePercents.push(BigNumber.from(milestoneReleasePercents[percent]).toHexString());
+      convertedMilestoneReleasePercents.push(
+        BigNumber.from(milestoneReleasePercents[percent]).toHexString()
+      );
     }
     const projectRaiseContractAddress = await contract.methods
       .createProjectRaise(
