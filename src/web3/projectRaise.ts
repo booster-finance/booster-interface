@@ -55,10 +55,11 @@ class ProjectRaise {
     });
 
     let tiers = await contract.methods.getFundingTiers().call();
-    tiers = tiers.map((tier) => {
+    console.log(tiers)
+    tiers = tiers[0].map((tier, idx) => {
       return {
         address: tier.reward,
-        cost: 0,
+        cost: tiers[1][idx],
         backers: parseInt(tier.currentBackers),
         maxBackers: parseInt(tier.maxBackers),
       };

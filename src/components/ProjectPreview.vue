@@ -5,6 +5,9 @@
         Status: {{ value.status }}
       </div>
 
+      <p>Allowance: {{ allowance }}</p>
+      <div class="button" @click="approve">Approve</div>
+
       <div class="button" id="update" @click="update">
         <font-awesome-icon class="icon" :icon="['fas', 'sync']" />
       </div>
@@ -84,12 +87,12 @@
         <img :src="getTierImage(1)" alt="Image of tier." />
         <p>{{ getTierName(1) }}</p>
         <p>{{ value.tiers[1].cost }} $</p>
-        <div class="button" @click="withdrawFunds">Withdraw Funds</div>
+        <div class="button" @click="withdrawInvestment">Withdraw Funds</div>
       </div>
     </div>
 
     <div id="get-funds" v-if="working && isCreator">
-      <div class="button">Withdraw Milestone Funds</div>
+      <div class="button" @click="withdrawFunds">Withdraw Milestone Funds</div>
     </div>
   </div>
 </template>
@@ -113,6 +116,7 @@ export default defineComponent({
   },
   data: function () {
     return {
+      allowance: 0,
       tier: null,
       error: "",
       cancelVotes: 100,
@@ -165,6 +169,20 @@ export default defineComponent({
       let project = await ProjectRaise.getProject(this.value.address);
       console.log(project);
     },
+    withdrawInvestment: async function () {
+      try {
+        let backerInfo = await ProjectRaise.getAddressBacking(
+          this.value.address,
+          this.$store.state.account
+        );
+        console.log(backerInfo);
+
+        // await ProjectRaise.withdrawRefund(this.value.address);
+      } catch (e) {
+        console.error(e);
+        this.error = e.toString();
+      }
+    },
     withdrawFunds: async function () {
       try {
         await ProjectRaise.withdrawFunds(this.value.address);
@@ -179,6 +197,17 @@ export default defineComponent({
           this.value.address,
           this.$store.account
         );
+
+        const web3 = await ensureWeb3();
+
+        let stablecoinContract = await new web3.eth.Contract(
+          ERC20ABI.abi as AbiItem[],
+          this.$store.state.network.ustContractAddress
+        );
+
+        this.allowance = await stablecoinContract.methods
+          .allowance(this.value.address, this.$store.state.account)
+          .call();
       }
     },
     getTierImage: function (index: number) {
@@ -222,20 +251,27 @@ export default defineComponent({
     },
     fund: async function (amount) {
       try {
-        let web3 = await ensureWeb3();
-        let stablecoinContract = await new web3.eth.Contract(
-          ERC20ABI.abi as AbiItem[],
-          this.$store.state.network.ustContractAddress
-        );
-
-        await stablecoinContract.methods
-          .approve(this.value.address, amount)
-          .send({ from: this.$store.state.account });
+        await this.allow();
 
         await ProjectRaise.acceptBacker(this.value.address, amount);
       } catch (e) {
-        this.error = e.toString();
+        this.error = e.message.toString();
       }
+    },
+    allow: async function () {
+      let web3 = await ensureWeb3();
+      let stablecoinContract = await new web3.eth.Contract(
+        ERC20ABI.abi as AbiItem[],
+        this.$store.state.network.ustContractAddress
+      );
+
+      await stablecoinContract.methods
+        .approve(
+          this.value.address,
+          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        )
+        .send({ from: this.$store.state.account });
+        console.log("Allowed!")
     },
     voteNo: async function () {
       this.vote(true);
