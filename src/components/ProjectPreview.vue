@@ -213,13 +213,8 @@ export default defineComponent({
     },
     withdrawInvestment: async function () {
       try {
-        let backerInfo = await ProjectRaise.getAddressBacking(
-          this.value.address,
-          this.$store.state.account
-        );
-        console.log(backerInfo);
-
-        await ProjectRaise.withdrawRefund(this.value.address, backerInfo);
+        await ProjectRaise.withdrawRefund(this.value.address);
+        window.location.reload();
       } catch (e) {
         console.error(e);
         this.error = e.toString();
@@ -551,7 +546,6 @@ h3 {
   100% {
     background-color: $primary;
     color: $white;
-
   }
 }
 </style>

@@ -276,8 +276,7 @@ class ProjectRaise {
   };
 
   static withdrawRefund = async function (
-    address: string,
-    amount: BigNumber
+    address: string
   ): Promise<string> {
     // TODO: Connect to current web3 provider (harmony)
     const web3 = await ensureWeb3();
@@ -290,7 +289,7 @@ class ProjectRaise {
       );
       // TODO: Make sure to convert values to correct decimal place
       await contract.methods
-        .withdrawRefund(amount)
+        .withdrawRefund(0)
         .send({ from: store.state.account });
     } catch (e: any) {
       error = e.message;
