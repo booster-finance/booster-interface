@@ -46,7 +46,7 @@ class ProjectFactory {
     const convertedMilestoneReleasePercents = [];
     for (const date in milestoneReleaseDates) {
       convertedMilestoneReleaseDates.push(
-        BigNumber.from(milestoneReleaseDates[date]).toHexString()
+        BigNumber.from(milestoneReleaseDates[date]/1000 | 0).toHexString()
       );
     }
     for (const percent in milestoneReleasePercents) {

@@ -370,7 +370,7 @@ export default defineComponent({
       console.log(data.metadata);
       await ProjectFactory.createProjectRaise(
         BigNumber.from(this.project.fundingGoal),
-        BigNumber.from(Date.now()).add(BigNumber.from(10000)),
+        BigNumber.from(Date.now()/1000 | 0).add(BigNumber.from(100)),
         data.metadata,
         this.milestoneReleaseDates,
         this.milestoneReleasePercents
