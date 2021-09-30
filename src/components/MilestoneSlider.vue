@@ -2,6 +2,7 @@
   <div class="milestone-slider">
     <div class="milestone-slider-stones">
       <slider :notext="true" :value="process" :max="total" />
+
       <div
         v-for="(milestone, idx) of value"
         :key="`milestone-stone-${idx}`"
@@ -10,9 +11,9 @@
       >
         {{ idx + 1 }}
 
+        <span class="percentage"> {{ milestone.releasePercentage }}% </span>
         <span class="time">
           {{ new Date(milestone.releaseDate).toLocaleString() }}
-          {{ milestone.releasePercentage }}%
         </span>
       </div>
     </div>
@@ -104,8 +105,14 @@ $size: 32px;
   height: $size;
   margin-left: 30px;
   margin-right: 30px;
-  margin-bottom: 60px;
-  margin-top: 20px;
+  margin-bottom: 80px;
+  margin-top: 60px;
+}
+
+.percentage {
+  position: absolute;
+  color: $primary;
+  top: -25px;
 }
 
 .time {

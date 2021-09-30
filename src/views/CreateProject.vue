@@ -353,7 +353,9 @@ export default defineComponent({
     deployProjectContract: async function (data, step) {
       const decimals = this.$store.state.network.ustDecimals;
       await ProjectFactory.createProjectRaise(
-        BigNumber.from(this.project.fundingGoal).mul(String(Math.pow(10, decimals))),
+        BigNumber.from(this.project.fundingGoal).mul(
+          String(Math.pow(10, decimals))
+        ),
         BigNumber.from((Date.now() / 1000) | 0).add(BigNumber.from(100)),
         data.metadata,
         this.milestoneReleaseDates,
@@ -372,7 +374,7 @@ export default defineComponent({
        * [Q/4] Do I need to create multiple TierNFT contracts.
        */
       for (let i = 0; i < this.project.tiers.length; i++) {
-        step.info = `Deploy (${i}/${this.project.tiers.length})`;
+        step.info = `Deploy (${i + 1}/${this.project.tiers.length})`;
         let tierNftContract = await TierNFT.createContract(
           data.projectRaiseContractAddress
         );
@@ -390,7 +392,9 @@ export default defineComponent({
 
       await ProjectRaise.assignTiers(
         data.projectRaiseContractAddress,
-        this.tierCosts.map((val) => val * Math.pow(10, decimals)),
+        this.tierCosts.map((val) =>
+          BigNumber.from(val).mul(String(Math.pow(10, decimals)))
+        ),
         data.tierNFTContractAddresses,
         this.tierMaxBackers
       );

@@ -10,15 +10,15 @@ import store from "../store";
 import * as ERC20ABI from "../../contracts/erc20.json";
 
 class ProjectRaise {
-  static fromBigNumber(num: number): number {
-    const decimals = store.state.network.ustDecimals;
-    return num / Math.pow(10, decimals);
-  }
+  // static fromBigNumber(num: number): number {
+  //   const decimals = store.state.network.ustDecimals;
+  //   return num / Math.pow(10, decimals);
+  // }
 
-  static toBigNumber(num: number): number {
-    const decimals = store.state.network.ustDecimals;
-    return num * Math.pow(10, decimals);
-  }
+  // static toBigNumber(num: number): number {
+  //   const decimals = store.state.network.ustDecimals;
+  //   return num * Math.pow(10, decimals);
+  // }
 
   static async allow(
     account: string,
@@ -36,7 +36,8 @@ class ProjectRaise {
       .allowance(account, spender)
       .call();
 
-    if (allowance < this.toBigNumber(amount))
+      console.log(amount, allowance)
+    if (allowance < amount)
       await stablecoinContract.methods
         .approve(
           spender,
@@ -61,11 +62,8 @@ class ProjectRaise {
      * How to convert the properties received from the ProjectRaise contract? [Q/6]
      */
 
-    let totalFunding = await contract.methods.totalBackingAmount().call();
-    totalFunding = this.fromBigNumber(totalFunding);
-
+    const totalFunding = await contract.methods.totalBackingAmount().call();
     const fundingGoal = await contract.methods.fundingGoal().call();
-    totalFunding = this.fromBigNumber(fundingGoal);
 
     const status = await contract.methods.currentStatus().call();
     const creator = await contract.methods.creator().call();
@@ -83,7 +81,7 @@ class ProjectRaise {
     tiers = tiers[0].map((tier, idx) => {
       return {
         address: tier.reward,
-        cost: this.fromBigNumber(tiers[1][idx]),
+        cost: tiers[1][idx],
         backers: parseInt(tier.currentBackers),
         maxBackers: parseInt(tier.maxBackers),
       };

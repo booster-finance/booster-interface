@@ -47,7 +47,7 @@
           <img :src="getTierImage(index)" alt="Image of tier." />
           <p>{{ getTierName(index) }}</p>
           <!-- <slider :max="tier.maxBackers" :value="tier.backers" /> -->
-          <p>{{ tier.cost }} $</p>
+          <p>{{ displayDecimal(tier.cost) }} $</p>
         </div>
       </div>
       <div id="contribute" v-if="started">
@@ -64,22 +64,22 @@
 
       <div class="funding" v-if="!finished">
         <h3>Funding</h3>
-        <Slider :value="value.totalFunding" :max="value.fundingGoal" />
+        <Slider :value="totalFunding" :max="fundingGoal" />
       </div>
 
       <div v-if="funded && tier">
         <h4>Voting</h4>
         <div v-if="tier" class="tier-select">
-          <p>{{ tier.cost }} $</p>
+          <p>{{ displayDecimal(tier.cost) }} $</p>
         </div>
         <div class="row" v-if="funded">
-          <div v-if="cancelVote" class="button" id="no" @click="voteNo">No</div>
+          <div v-if="!cancelVote" class="button" id="no" @click="voteNo">No</div>
           <div v-else>You already voted</div>
           <!-- <div class="button" id="yes" @click="voteYes">Yes</div> -->
         </div>
       </div>
 
-      <slider :max="votesToCancel" :value="votes" />
+      <slider v-if="funded" :max="votesToCancel" :value="votes" />
 
       <div class="info" v-if="finished">
         <font-awesome-icon class="icon" :icon="['fas', 'info-circle']" />
@@ -90,14 +90,14 @@
     <div id="withdraw" v-if="tier && (started || cancelled)">
       <h3>Your contribution</h3>
       <div class="tier-select">
-        <p>{{ tier.cost }} $</p>
+        <p>{{ displayDecimal(tier.cost) }} $</p>
         <div class="button" @click="withdrawInvestment">Withdraw Funds</div>
       </div>
     </div>
 
     <div id="get-funds" v-if="!started && isCreator">
       <div class="button" @click="withdrawFunds">
-        Withdraw Milestone Funds ({{ this.withdrawableFunds }}$)
+        Withdraw Milestone Funds ({{ displayDecimal(this.withdrawableFunds) }}$)
       </div>
     </div>
   </div>
@@ -105,7 +105,7 @@
 
 <script lang="ts">
 import { Project } from "@/model/Project";
-import { defineComponent, PropType } from "vue";
+import { defineComponent, PropType, toDisplayString } from "vue";
 import Tier from "../model/Tiers";
 import { Tier as TierInterface } from "../model/Project";
 import Slider from "./Slider.vue";
@@ -125,7 +125,7 @@ export default defineComponent({
   data: function () {
     return {
       error: "",
-      cancelVotes: false,
+      cancelVote: false,
       votes: 0,
       customFunding: 10,
       withdrawableFunds: "UNSET",
@@ -152,7 +152,13 @@ export default defineComponent({
     },
     votesToCancel: function () {
       const totalFunding = this.value.totalFunding;
-      return Math.ceil(totalFunding) / 2 + 1;
+      return this.displayDecimal(Math.ceil(totalFunding) / 2 + 1);
+    },
+    totalFunding: function () {
+      return this.displayDecimal(this.value.totalFunding);
+    },
+    fundingGoal: function () {
+      return this.displayDecimal(this.value.fundingGoal);
     },
     started: function () {
       return this.value?.status == 0;
@@ -176,11 +182,18 @@ export default defineComponent({
     },
   },
   methods: {
+    displayDecimal(val: number) {
+      const decimals = this.$store.state.network.ustDecimals;
+      const div = Math.pow(10, decimals);
+      return Math.floor(val / div);
+    },
     update: async function () {
       await ProjectRaise.checkFundingSuccess(this.value.address);
+      this.updateProject();
     },
     milestoneCheck: async function () {
       await ProjectRaise.milestoneCheck(this.value.address);
+      this.updateProject();
     },
     withdrawInvestment: async function () {
       try {
@@ -220,20 +233,21 @@ export default defineComponent({
     },
     updateProject: async function () {
       if (this.$store.state.network) {
-        this.cancelVotes = await ProjectRaise.getCancelVote(
+        this.cancelVote = await ProjectRaise.getCancelVote(
           this.value.address,
           this.$store.state.account
         );
 
+
         this.withdrawableFunds = await this.getWithdrawAbleFunds();
         this.votes = await ProjectRaise.getVotesCount(this.value.address);
 
-        const web3 = await ensureWeb3();
+        // const web3 = await ensureWeb3();
 
-        let stablecoinContract = await new web3.eth.Contract(
-          ERC20ABI.abi as AbiItem[],
-          this.$store.state.network.ustContractAddress
-        );
+        // let stablecoinContract = await new web3.eth.Contract(
+        //   ERC20ABI.abi as AbiItem[],
+        //   this.$store.state.network.ustContractAddress
+        // );
       }
     },
     getTierImage: function (index: number) {
@@ -273,7 +287,9 @@ export default defineComponent({
     },
     customFund: async function () {
       const decimals = this.$store.state.network.ustDecimals;
-      this.fund(BigNumber.from(this.customFunding * Math.pow(10, decimals)));
+      this.fund(
+        BigNumber.from(this.customFunding).mul(String(Math.pow(10, decimals)))
+      );
     },
     fund: async function (amount) {
       try {
@@ -284,6 +300,8 @@ export default defineComponent({
         );
 
         await ProjectRaise.acceptBacker(this.value.address, amount);
+
+        this.updateProject();
       } catch (e) {
         this.error = e.message.toString();
       }
@@ -297,6 +315,7 @@ export default defineComponent({
     vote: async function (cancel) {
       try {
         await ProjectRaise.vote(this.value.address, cancel);
+        this.updateProject();
       } catch (e) {
         console.error(e);
         this.error = e.toString();
@@ -372,10 +391,10 @@ h3 {
     object-fit: contain;
   }
 
-  p {
-    width: 100px;
-    text-align: left;
-  }
+  // p {
+  //   width: 100px;
+  //   text-align: left;
+  // }
 }
 
 #contribute {
@@ -434,15 +453,14 @@ h3 {
   border-width: 3px;
   &:before {
     content: "owner";
-    background-color: $primary;
     padding: 3px 20px;
-    color: $white;
+    color: $primary;
     font-weight: bold;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     position: absolute;
     top: 0;
-    transform: translateY(-100%);
+    right: 10px;
   }
 }
 
