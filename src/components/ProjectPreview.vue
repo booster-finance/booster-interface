@@ -188,7 +188,7 @@ export default defineComponent({
         );
         console.log(backerInfo);
 
-        // await ProjectRaise.withdrawRefund(this.value.address);
+        await ProjectRaise.withdrawRefund(this.value.address, backerInfo);
       } catch (e) {
         console.error(e);
         this.error = e.toString();
