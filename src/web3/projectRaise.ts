@@ -16,27 +16,10 @@ class ProjectRaise {
       address
     );
 
+
     const tokenURI = await contract.methods.tokenURI().call();
 
-    let title, description, link;
-    if (tokenURI && tokenURI !== "0") {
-      const node = await IPFS.create();
-
-      const source = node.cat(tokenURI);
-      const decoder = new TextDecoder();
-      let dataString = "";
-      for await (const chunk of source) {
-        dataString += decoder.decode(chunk);
-      }
-      await node.stop();
-      ({ title, description, link } = JSON.parse(dataString));
-      console.log({ title, description, link });
-    } else {
-      console.error(`Could not find metadata for: ${address}`);
-      title = "-";
-      description = "-";
-      link = "";
-    }
+    const {title, description, link} = await this.getIPFS(tokenURI, address) ;
 
     /**
      * How to convert the properties received from the ProjectRaise contract? [Q/6]
@@ -54,6 +37,7 @@ class ProjectRaise {
       };
     });
 
+
     let tiers = await contract.methods.getFundingTiers().call();
     console.log(tiers)
     tiers = tiers[0].map((tier, idx) => {
@@ -64,6 +48,7 @@ class ProjectRaise {
         maxBackers: parseInt(tier.maxBackers),
       };
     });
+
     /**
      * How to get the Tier List back? [Q/7]
      */
@@ -87,6 +72,37 @@ class ProjectRaise {
       milestones,
     };
   };
+
+  static async getIPFS(tokenURI, address){
+
+    const timeout = setTimeout(()=> {
+      throw new Error("Could not get IPFS token " + tokenURI)}
+      ,1000)
+    
+      let title, description, link;
+
+    if (tokenURI && tokenURI !== "0") {
+      const node = await IPFS.create();
+
+      const source = node.cat(tokenURI);
+      const decoder = new TextDecoder();
+      let dataString = "";
+      for await (const chunk of source) {
+        dataString += decoder.decode(chunk);
+      }
+      await node.stop();
+      ({ title, description, link } = JSON.parse(dataString));
+      console.log({ title, description, link });
+    } else {
+      console.error(`Could not find metadata for: ${address}`);
+      title = "-";
+      description = "-";
+      link = "";
+    }
+
+    clearTimeout(timeout)
+    return {title,description,link}
+  }
 
   static withdrawFunds = async function (address: string) {
     // TODO: Connect to current web3 provider (harmony)

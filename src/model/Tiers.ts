@@ -24,6 +24,7 @@ export default class Tier {
 
   static getImage(index: number, length: number): string {
     const { type, rank } = this.getTypeAndRank(index, length);
+    if(!this.RegularNames[type]) return "ERROR"
     return `${this.RegularNames[type].toLowerCase()}_${rank}.png`;
   }
 }

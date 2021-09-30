@@ -5,9 +5,6 @@
         Status: {{ value.status }}
       </div>
 
-      <p>Allowance: {{ allowance }}</p>
-      <div class="button" @click="approve">Approve</div>
-
       <div class="button" id="update" @click="update">
         <font-awesome-icon class="icon" :icon="['fas', 'sync']" />
       </div>
@@ -33,9 +30,9 @@
       <h3>Milestones</h3>
       <MilestoneSlider :value="value.milestones" />
       <!-- TODO: Here we need some kind of ID for the project  -->
-      <h3 v-if="funding">Tiers</h3>
+      <h3 v-if="started">Tiers</h3>
 
-      <div id="tier-list" v-if="funding && !tier">
+      <div id="tier-list" v-if="started && !tier">
         <div
           class="tier-select"
           v-for="(tier, index) of value.tiers"
@@ -48,7 +45,7 @@
           <p>{{ tier.cost }} $</p>
         </div>
       </div>
-      <div id="contribute" v-if="funding">
+      <div id="contribute" v-if="started">
         <span>Support Project Without Reward</span>
         <div class="row">
           <input v-model="customFunding" type="number" step="0.01" min="0" />
@@ -60,38 +57,36 @@
         {{ this.error }}
       </div>
 
-      <h3 v-if="!completed">Funding</h3>
+      <h3 v-if="!finished">Funding</h3>
       <Slider
-        v-if="!completed"
+        v-if="!finished"
         :value="calculateCurrentFunding()"
         :max="value.fundingGoal"
       />
 
-      <h4 v-if="working">Voting</h4>
-      <div class="row" v-if="working">
+      <h4 v-if="funded">Voting</h4>
+      <div class="row" v-if="funded">
         <div class="button" id="no" @click="voteNo">No</div>
         <div class="button" id="yes" @click="voteYes">Yes</div>
       </div>
 
-      <slider v-if="working" :max="votesToCancel" :value="cancelVotes" />
+      <slider v-if="funded" :max="votesToCancel" :value="cancelVotes" />
 
-      <div class="info" v-if="completed">
+      <div class="info" v-if="finished">
         <font-awesome-icon class="icon" :icon="['fas', 'info-circle']" />
         This project has been completed!
       </div>
     </div>
 
-    <div id="withdraw" v-if="(tier && funding) || completed">
+    <div id="withdraw" v-if="tier && (started || cancelled)">
       <h3>Your contribution</h3>
       <div class="tier-select">
-        <img :src="getTierImage(1)" alt="Image of tier." />
-        <p>{{ getTierName(1) }}</p>
-        <p>{{ value.tiers[1].cost }} $</p>
+        <p>{{ tier.cost }} $</p>
         <div class="button" @click="withdrawInvestment">Withdraw Funds</div>
       </div>
     </div>
 
-    <div id="get-funds" v-if="working && isCreator">
+    <div id="get-funds" v-if="funded && isCreator">
       <div class="button" @click="withdrawFunds">Withdraw Milestone Funds</div>
     </div>
   </div>
@@ -113,11 +108,11 @@ export default defineComponent({
   name: "ProjectPreview",
   props: {
     value: Object as PropType<Project>,
+    tier: Object,
   },
   data: function () {
     return {
       allowance: 0,
-      tier: null,
       error: "",
       cancelVotes: 100,
       customFunding: 10,
@@ -146,13 +141,16 @@ export default defineComponent({
       const totalFunding = this.value.totalFunding;
       return Math.ceil(totalFunding) / 2 + 1;
     },
-    funding: function () {
+    started: function () {
       return this.value?.status == 0;
     },
-    working: function () {
+    funded: function () {
       return this.value?.status == 1;
     },
-    completed: function () {
+    finished: function () {
+      return this.value?.status == 2;
+    },
+    cancelled: function () {
       return this.value?.status == 2;
     },
     isCreator: function () {
@@ -166,8 +164,11 @@ export default defineComponent({
   },
   methods: {
     update: async function () {
-      let project = await ProjectRaise.getProject(this.value.address);
-      console.log(project);
+      if (this.value.status == 0) {
+        await ProjectRaise.checkFundingSuccess(this.value.address);
+      } else {
+        await ProjectRaise.milestoneCheck(this.value.address);
+      }
     },
     withdrawInvestment: async function () {
       try {
@@ -271,7 +272,7 @@ export default defineComponent({
           "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
         )
         .send({ from: this.$store.state.account });
-        console.log("Allowed!")
+      console.log("Allowed!");
     },
     voteNo: async function () {
       this.vote(true);
@@ -338,6 +339,7 @@ h3 {
   border: $border;
   border-radius: 10px;
   align-items: center;
+  justify-content: space-between;
   padding: 0 10px;
   cursor: pointer;
   overflow: hidden;

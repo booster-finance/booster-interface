@@ -17,12 +17,15 @@
         v-for="project of projects"
         :key="`project-addr-${project.address}`"
         :value="project"
+        :tier="getTier(project.address)"
       />
     </div>
 
-    <div v-if="projects.length == 0" class="button" @click="update">
+    <!-- <div v-if="projects.length == 0" class="button" @click="update">
       Refresh
-    </div>
+    </div> -->
+
+    <div class="error">{{ this.error }}</div>
 
     <div class="button" id="createProject" @click="createProject">
       <font-awesome-icon class="icon" :icon="['fas', 'plus']" />
@@ -96,8 +99,10 @@ export default defineComponent({
   data: function () {
     return {
       loading: true,
+      error: "",
       debugProject: gaming,
       projects: [],
+      tiermap: {},
     };
   },
   computed: {
@@ -131,28 +136,46 @@ export default defineComponent({
     createProject: function () {
       this.$router.push({ name: "Create" });
     },
+
+    getTier: function (address) {
+      console.log(this.tiermap, address, this.tiermap[address]);
+      return this.tiermap[address];
+    },
     loadProjects: async function () {
       console.log("Load projects ... ");
-      if (this.network?.factoryContractAddress) {
-        let projectAdresses = await ProjectFactory.getProjects();
-        console.log(projectAdresses);
+      try {
+        if (this.network?.factoryContractAddress) {
+          let projectAdresses = await ProjectFactory.getProjects();
+          console.log(projectAdresses);
 
-        const web3 = await ensureWeb3();
+          let projects = [];
+          for (let address of projectAdresses) {
+            let project = await ProjectRaise.getProject(address);
 
-        /**
-         * When calling ProjectFactory.getProjects we should get back a list of addresses, right? How can I get the single project from the address? [Q/5]
-         */
+            let reward = await ProjectRaise.getBackerRewards(
+              address,
+              this.$store.state.account
+            );
 
-        let projects = [];
-        for (let address of projectAdresses) {
-          console.log(address);
-          let project = await ProjectRaise.getProject(address);
-          projects.push(project);
+            let backing = await ProjectRaise.getAddressBacking(
+              address,
+              this.$store.state.account
+            );
+
+            this.tiermap[address] = { cost: reward[0].tierAmount, address };
+
+            projects.push(project);
+          }
+          this.projects = projects;
+
+          console.log("LADOERR", this.projects);
+
+          this.loading = false;
+          console.log("Projects loaded ", this.projects);
         }
-        this.projects = projects;
-
-        this.loading = false;
-        console.log("Projects loaded ", this.projects);
+      } catch (e) {
+        console.error(e);
+        this.error = e;
       }
     },
   },

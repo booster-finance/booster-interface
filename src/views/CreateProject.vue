@@ -94,7 +94,6 @@ import TierList from "../components/TierList.vue";
 import MilestoneList from "@/components/MilestoneList.vue";
 import Error from "@/components/Error.vue";
 import ProjectFactory from "@/web3/projectFactory";
-import web3utils from "web3-utils";
 import { BigNumber } from "@ethersproject/bignumber";
 import TierNFT from "@/web3/tierNFT";
 import PendingItem from "@/components/PendingItem.vue";
@@ -106,50 +105,36 @@ import Tier from "@/model/Tiers";
 const gaming: Project = {
   address: "asdasdasdasd",
   creator: "0x3e0C626e174334455CF2fDf11C376331389885c2",
-  title: "Fred the Knight",
+  title: "Booster Finance",
   status: ProjectPhase.Investment,
-  fundingGoal: 3000,
+  fundingGoal: 200,
   totalFunding: 0,
   description:
-    "It's the best point and click adventure ever made. Fred the Knight has to find his big love Princess Penelope.",
-  link: "https://fred-the-game.com",
+    "A revolutionarey way to raise funds for new projects.",
+  link: "https://no-booster-website.yet",
   tiers: [
     {
-      backers: 20,
-      maxBackers: 100,
-      cost: 10,
+      backers: 0,
+      maxBackers: 20,
+      cost: 110,
       address: "",
     },
     {
-      backers: 20,
-      maxBackers: 50,
-      cost: 50,
-      address: "",
-    },
-    {
-      backers: 2,
+      backers: 0,
       maxBackers: 10,
-      cost: 150,
+      cost: 200,
       address: "",
-    },
+    }
   ],
   milestones: [
     {
-      releaseDate: Date.now() + 1000000000,
+      releaseDate: Date.now() + 300000,
       releasePercentage: 10,
     },
     {
-      releaseDate: Date.now() + 4000000000,
+      releaseDate: Date.now() + 900000,
       releasePercentage: 20,
-    },
-    {
-      releaseDate: Date.now() + 6000000000,
-      releasePercentage: 50,
-    },
-    {
-      releaseDate: Date.now() + 10000000000,
-      releasePercentage: 20,
-    },
+    }
   ],
 };
 
