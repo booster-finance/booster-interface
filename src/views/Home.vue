@@ -1,16 +1,28 @@
 <template>
   <div class="home">
     <div class="button-group">
-      <router-link class="button" :to="{ name: 'ProjectFunding' }"
+      <router-link
+        class="button tab-button"
+        :class="{ active: isActive('/funding') }"
+        :to="{ name: 'ProjectFunding' }"
         >Funding</router-link
       >
-      <router-link class="button" :to="{ name: 'ProjectActive' }"
+      <router-link
+        class="button tab-button"
+        :class="{ active: isActive('/active') }"
+        :to="{ name: 'ProjectActive' }"
         >Active</router-link
       >
-      <router-link class="button" :to="{ name: 'ProjectCompleted' }"
+      <router-link
+        class="button tab-button"
+        :class="{ active: isActive('/completed') }"
+        :to="{ name: 'ProjectCompleted' }"
         >Completed</router-link
       >
-      <router-link class="button" :to="{ name: 'ProjectCancelled' }"
+      <router-link
+        class="button tab-button"
+        :class="{ active: isActive('/cancelled') }"
+        :to="{ name: 'ProjectCancelled' }"
         >Cancelled</router-link
       >
     </div>
@@ -27,6 +39,11 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "Home",
+  methods: {
+    isActive(path) {
+      return this.$route.path === path;
+    },
+  },
 });
 </script>
 
@@ -35,6 +52,16 @@ export default defineComponent({
 .home {
   width: 720px;
   max-width: 100%;
+}
+
+.tab-button {
+  color: $primary;
+  background-color: transparent;
+
+  &.active {
+    background-color: $primary;
+    color: $white;
+  }
 }
 
 #createProject {
@@ -47,11 +74,6 @@ export default defineComponent({
   box-sizing: border-box;
 }
 
-.projects {
-  > * {
-    margin: 20px;
-  }
-}
 
 .button-group {
   display: flex;

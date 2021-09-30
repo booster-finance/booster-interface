@@ -10,12 +10,15 @@ const routes: Array<RouteRecordRaw> = [
     path: "/",
     name: "Home",
     component: Home,
+    redirect: {
+      name: 'ProjectFunding'
+    },
     children: [
+      { path: "", redirect: "funding" },
       { name: "ProjectFunding",path: "funding", component: ProjectOverview },
       { name: "ProjectActive",path: "active", component: ProjectOverview },
       { name: "ProjectCompleted",path: "completed", component: ProjectOverview },
       { name: "ProjectCancelled",path: "cancelled", component: ProjectOverview },
-      { path: "", redirect: "funding" },
     ],
   },
   {

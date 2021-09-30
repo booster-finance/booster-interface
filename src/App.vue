@@ -66,7 +66,7 @@ main {
   background: linear-gradient(10deg, whitesmoke, $white);
 
   &::before {
-    position: absolute;
+    position: fixed;
 
     content: "";
     width: 100%;

@@ -1,6 +1,6 @@
 <template>
   <div class="project-overview">
-    <spinner v-if="loading" />
+    <spinner class="spinner" v-if="loading" />
 
     <p v-if="!loading && projects.length == 0">No projects were created yet</p>
 
@@ -206,10 +206,15 @@ export default defineComponent({
   box-sizing: border-box;
 }
 
-.projects {
-  > * {
-    margin: 20px;
-  }
+.spinner {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.projects > * {
+  margin: 20px 0;
 }
 
 .button-group {
