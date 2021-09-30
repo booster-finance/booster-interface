@@ -353,7 +353,7 @@ export default defineComponent({
     deployProjectContract: async function (data, step) {
       const decimals = this.$store.state.network.ustDecimals;
       await ProjectFactory.createProjectRaise(
-        BigNumber.from(this.project.fundingGoal * Math.pow(10, decimals)),
+        BigNumber.from(this.project.fundingGoal).mul(String(Math.pow(10, decimals))),
         BigNumber.from((Date.now() / 1000) | 0).add(BigNumber.from(100)),
         data.metadata,
         this.milestoneReleaseDates,
