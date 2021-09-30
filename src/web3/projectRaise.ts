@@ -32,7 +32,7 @@ class ProjectRaise {
     let milestones = await contract.methods.getMilestones().call();
     milestones = milestones.map((milestone) => {
       return {
-        releaseDate: parseInt(milestone[0]),
+        releaseDate: parseInt(milestone[0]) * 1000,
         releasePercentage: parseInt(milestone[1]),
       };
     });

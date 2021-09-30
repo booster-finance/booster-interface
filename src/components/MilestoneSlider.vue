@@ -38,7 +38,6 @@ export default defineComponent({
   computed: {
     process() {
       if (this.value.length <= 1) return this.total;
-      const steps = this.value.length - 1;
       let stepSize = this.total;
       if (this.value.length > 2) {
         stepSize = this.total / (this.value.length - 1);
@@ -57,7 +56,6 @@ export default defineComponent({
       if (i < 1) process = 0;
       else if (i >= this.value.length - 1) process = this.total;
       else {
-        
         console.log(this.value[i], this.value[i - 1], i);
         console.log(this.value[i].releaseDate, this.value[i - 1].releaseDate);
 
