@@ -114,7 +114,7 @@ export default defineComponent({
         "/funding": 0,
         "/active": 1,
         "/completed": 2,
-        "/canceled": 3,
+        "/cancelled": 3,
       };
 
       return this.projects.filter((project) => {

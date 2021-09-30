@@ -1,5 +1,6 @@
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
+  faBan,
   faCheck,
   faExclamationTriangle,
   faInfoCircle,
@@ -21,6 +22,7 @@ library.add(faExclamationTriangle);
 library.add(faCheck);
 library.add(faTimesCircle)
 library.add(faSync)
+library.add(faBan)
 
 createApp(App)
   .use(store)

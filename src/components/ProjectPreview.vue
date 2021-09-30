@@ -14,6 +14,15 @@
         2
       </div>
 
+      <div
+        v-if="isCreator"
+        class="button"
+        id="cancel-btn"
+        @click="cancelProject"
+      >
+        <font-awesome-icon class="icon" :icon="['fas', 'ban']" />
+      </div>
+
       <header>
         <h2>{{ value.title }}</h2>
       </header>
@@ -73,7 +82,9 @@
           <p>{{ displayDecimal(tier.cost) }} $</p>
         </div>
         <div class="row" v-if="funded">
-          <div v-if="!cancelVote" class="button" id="no" @click="voteNo">No</div>
+          <div v-if="!cancelVote" class="button" id="no" @click="voteNo">
+            No
+          </div>
           <div v-else>You already voted</div>
           <!-- <div class="button" id="yes" @click="voteYes">Yes</div> -->
         </div>
@@ -195,6 +206,10 @@ export default defineComponent({
       await ProjectRaise.milestoneCheck(this.value.address);
       this.updateProject();
     },
+    cancelProject: async function () {
+      await ProjectRaise.cancelProject(this.value.address);
+      this.updateProject();
+    },
     withdrawInvestment: async function () {
       try {
         let backerInfo = await ProjectRaise.getAddressBacking(
@@ -237,7 +252,6 @@ export default defineComponent({
           this.value.address,
           this.$store.state.account
         );
-
 
         this.withdrawableFunds = await this.getWithdrawAbleFunds();
         this.votes = await ProjectRaise.getVotesCount(this.value.address);
@@ -488,6 +502,7 @@ h3 {
   }
 }
 
+#cancel-btn,
 #mc,
 #update {
   position: absolute;
@@ -511,6 +526,10 @@ h3 {
 
 #mc {
   right: 100px;
+}
+
+#cancel-btn {
+  right: 175px;
 }
 
 .funding {
