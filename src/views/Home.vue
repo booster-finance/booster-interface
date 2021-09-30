@@ -157,19 +157,16 @@ export default defineComponent({
               this.$store.state.account
             );
 
-            let backing = await ProjectRaise.getAddressBacking(
-              address,
-              this.$store.state.account
-            );
-
-            this.tiermap[address] = { cost: reward[0].tierAmount, address };
+            // let backing = await ProjectRaise.getAddressBacking(
+            //   address,
+            //   this.$store.state.account
+            // );
+            if (reward.length > 0)
+              this.tiermap[address] = { cost: reward[0].tierAmount, address };
 
             projects.push(project);
           }
           this.projects = projects;
-
-          console.log("LADOERR", this.projects);
-
           this.loading = false;
           console.log("Projects loaded ", this.projects);
         }
