@@ -109,8 +109,7 @@ const gaming: Project = {
   status: ProjectPhase.Investment,
   fundingGoal: 200,
   totalFunding: 0,
-  description:
-    "A revolutionarey way to raise funds for new projects.",
+  description: "A revolutionarey way to raise funds for new projects.",
   link: "https://no-booster-website.yet",
   tiers: [
     {
@@ -124,7 +123,7 @@ const gaming: Project = {
       maxBackers: 10,
       cost: 200,
       address: "",
-    }
+    },
   ],
   milestones: [
     {
@@ -134,7 +133,7 @@ const gaming: Project = {
     {
       releaseDate: Date.now() + 1200000,
       releasePercentage: 50,
-    }
+    },
   ],
 };
 
@@ -352,10 +351,10 @@ export default defineComponent({
       return { metadata: result.path };
     },
     deployProjectContract: async function (data, step) {
-      console.log(data.metadata);
+      const decimals = this.$store.state.network.ustDecimals;
       await ProjectFactory.createProjectRaise(
-        BigNumber.from(this.project.fundingGoal),
-        BigNumber.from(Date.now()/1000 | 0).add(BigNumber.from(100)),
+        BigNumber.from(this.project.fundingGoal * Math.pow(10, decimals)),
+        BigNumber.from((Date.now() / 1000) | 0).add(BigNumber.from(100)),
         data.metadata,
         this.milestoneReleaseDates,
         this.milestoneReleasePercents
@@ -373,7 +372,7 @@ export default defineComponent({
        * [Q/4] Do I need to create multiple TierNFT contracts.
        */
       for (let i = 0; i < this.project.tiers.length; i++) {
-        step.info = `Deploy (1/${this.project.tiers.length})`;
+        step.info = `Deploy (${i}/${this.project.tiers.length})`;
         let tierNftContract = await TierNFT.createContract(
           data.projectRaiseContractAddress
         );
@@ -387,9 +386,11 @@ export default defineComponent({
       return { tierNFTContractAddresses };
     },
     assignTierNFTs: async function (data) {
+      const decimals = this.$store.state.network.ustDecimals;
+
       await ProjectRaise.assignTiers(
         data.projectRaiseContractAddress,
-        this.tierCosts,
+        this.tierCosts.map((val) => val * Math.pow(10, decimals)),
         data.tierNFTContractAddresses,
         this.tierMaxBackers
       );

@@ -48,11 +48,6 @@ body,
   min-height: 100%;
   height: 100%;
 }
-
-main {
-  background: linear-gradient(10deg, whitesmoke, $white);
-}
-
 #background-icon {
   width: 12.5%;
 }
@@ -65,7 +60,10 @@ main {
 main {
   position: relative;
   flex: 1;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: center;
+
+  background: linear-gradient(10deg, whitesmoke, $white);
 
   &::before {
     position: absolute;
@@ -93,6 +91,10 @@ body {
 
 .content {
   display: flex;
+  position: relative;
+  width: 720px;
+  max-width: 100%;
+  align-items: flex-start;
   justify-content: center;
 }
 

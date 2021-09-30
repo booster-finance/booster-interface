@@ -1,9 +1,9 @@
 <template>
   <div class="project-preview" :class="{ own: isCreator }">
     <div class="main">
-      <div class="button" id="status" @click="changeStatus">
+      <!-- <div class="button" id="status" @click="changeStatus">
         Status: {{ value.status }}
-      </div>
+      </div> -->
 
       <div class="button" id="update" @click="update">
         <font-awesome-icon class="icon" :icon="['fas', 'sync']" />
@@ -46,7 +46,7 @@
         >
           <img :src="getTierImage(index)" alt="Image of tier." />
           <p>{{ getTierName(index) }}</p>
-          <slider :max="tier.maxBackers" :value="tier.backers" />
+          <!-- <slider :max="tier.maxBackers" :value="tier.backers" /> -->
           <p>{{ tier.cost }} $</p>
         </div>
       </div>
@@ -62,23 +62,24 @@
         {{ this.error }}
       </div>
 
-      <h3 v-if="!finished">Funding</h3>
-      <Slider
-        v-if="!finished"
-        :value="value.totalFunding"
-        :max="value.fundingGoal"
-      />
-
-      <h4 v-if="funded">Voting</h4>
-      <div v-if="tier" class="tier-select">
-        <p>{{ tier.cost }} $</p>
-      </div>
-      <div class="row" v-if="funded">
-        <div class="button" id="no" @click="voteNo">No</div>
-        <!-- <div class="button" id="yes" @click="voteYes">Yes</div> -->
+      <div class="funding" v-if="!finished">
+        <h3>Funding</h3>
+        <Slider :value="value.totalFunding" :max="value.fundingGoal" />
       </div>
 
-      <slider v-if="funded" :max="votesToCancel" :value="cancelVotes" />
+      <div v-if="funded && tier">
+        <h4>Voting</h4>
+        <div v-if="tier" class="tier-select">
+          <p>{{ tier.cost }} $</p>
+        </div>
+        <div class="row" v-if="funded">
+          <div v-if="cancelVote" class="button" id="no" @click="voteNo">No</div>
+          <div v-else>You already voted</div>
+          <!-- <div class="button" id="yes" @click="voteYes">Yes</div> -->
+        </div>
+      </div>
+
+      <slider :max="votesToCancel" :value="votes" />
 
       <div class="info" v-if="finished">
         <font-awesome-icon class="icon" :icon="['fas', 'info-circle']" />
@@ -123,9 +124,9 @@ export default defineComponent({
   },
   data: function () {
     return {
-      allowance: 0,
       error: "",
-      cancelVotes: 100,
+      cancelVotes: false,
+      votes: 0,
       customFunding: 10,
       withdrawableFunds: "UNSET",
     };
@@ -225,6 +226,7 @@ export default defineComponent({
         );
 
         this.withdrawableFunds = await this.getWithdrawAbleFunds();
+        this.votes = await ProjectRaise.getVotesCount(this.value.address);
 
         const web3 = await ensureWeb3();
 
@@ -232,16 +234,11 @@ export default defineComponent({
           ERC20ABI.abi as AbiItem[],
           this.$store.state.network.ustContractAddress
         );
-
-        this.allowance = await stablecoinContract.methods
-          .allowance(this.value.address, this.$store.state.account)
-          .call();
       }
     },
     getTierImage: function (index: number) {
       if (this.value) {
         let img = Tier.getImage(index, this.value.tiers.length);
-        console.log(img);
 
         return `/tiers/${img}`;
       } else return "";
@@ -275,31 +272,21 @@ export default defineComponent({
       this.fund(tier.cost);
     },
     customFund: async function () {
-      this.fund(BigNumber.from(this.customFunding));
+      const decimals = this.$store.state.network.ustDecimals;
+      this.fund(BigNumber.from(this.customFunding * Math.pow(10, decimals)));
     },
     fund: async function (amount) {
       try {
-        await this.allow();
+        await ProjectRaise.allow(
+          this.$store.state.account,
+          this.value.address,
+          amount
+        );
 
         await ProjectRaise.acceptBacker(this.value.address, amount);
       } catch (e) {
         this.error = e.message.toString();
       }
-    },
-    allow: async function () {
-      let web3 = await ensureWeb3();
-      let stablecoinContract = await new web3.eth.Contract(
-        ERC20ABI.abi as AbiItem[],
-        this.$store.state.network.ustContractAddress
-      );
-
-      await stablecoinContract.methods
-        .approve(
-          this.value.address,
-          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-        )
-        .send({ from: this.$store.state.account });
-      console.log("Allowed!");
     },
     voteNo: async function () {
       this.vote(true);
@@ -428,16 +415,7 @@ h3 {
   }
 }
 
-#yes {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-left: none;
-  background-color: $green;
-}
-
 #no {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
   background-color: $red;
 }
 
@@ -515,5 +493,9 @@ h3 {
 
 #mc {
   right: 100px;
+}
+
+.funding {
+  margin: 5em 0;
 }
 </style>

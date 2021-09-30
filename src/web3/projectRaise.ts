@@ -7,7 +7,44 @@ import { Project } from "@/model/Project";
 import * as IPFS from "ipfs-core";
 import store from "../store";
 
+import * as ERC20ABI from "../../contracts/erc20.json";
+
 class ProjectRaise {
+  static fromBigNumber(num: number): number {
+    const decimals = store.state.network.ustDecimals;
+    return num / Math.pow(10, decimals);
+  }
+
+  static toBigNumber(num: number): number {
+    const decimals = store.state.network.ustDecimals;
+    return num * Math.pow(10, decimals);
+  }
+
+  static async allow(
+    account: string,
+    spender: string,
+    amount: number
+  ): Promise<void> {
+    const web3 = await ensureWeb3();
+
+    const stablecoinContract = await new web3.eth.Contract(
+      ERC20ABI.abi as AbiItem[],
+      store.state.network.ustContractAddress
+    );
+
+    const allowance = await stablecoinContract.methods
+      .allowance(account, spender)
+      .call();
+
+    if (allowance < this.toBigNumber(amount))
+      await stablecoinContract.methods
+        .approve(
+          spender,
+          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        )
+        .send({ from: account });
+  }
+
   static getProject = async function (address: string): Promise<Project> {
     const web3 = await ensureWeb3();
 
@@ -16,16 +53,20 @@ class ProjectRaise {
       address
     );
 
-
     const tokenURI = await contract.methods.tokenURI().call();
 
-    const {title, description, link} = await this.getIPFS(tokenURI, address) ;
+    const { title, description, link } = await this.getIPFS(tokenURI, address);
 
     /**
      * How to convert the properties received from the ProjectRaise contract? [Q/6]
      */
-    const totalFunding = await contract.methods.totalBackingAmount().call();
+
+    let totalFunding = await contract.methods.totalBackingAmount().call();
+    totalFunding = this.fromBigNumber(totalFunding);
+
     const fundingGoal = await contract.methods.fundingGoal().call();
+    totalFunding = this.fromBigNumber(fundingGoal);
+
     const status = await contract.methods.currentStatus().call();
     const creator = await contract.methods.creator().call();
 
@@ -37,13 +78,12 @@ class ProjectRaise {
       };
     });
 
-
     let tiers = await contract.methods.getFundingTiers().call();
-    console.log(tiers)
+    console.log(tiers);
     tiers = tiers[0].map((tier, idx) => {
       return {
         address: tier.reward,
-        cost: tiers[1][idx],
+        cost: this.fromBigNumber(tiers[1][idx]),
         backers: parseInt(tier.currentBackers),
         maxBackers: parseInt(tier.maxBackers),
       };
@@ -73,13 +113,12 @@ class ProjectRaise {
     };
   };
 
-  static async getIPFS(tokenURI, address){
+  static async getIPFS(tokenURI, address) {
+    const timeout = setTimeout(() => {
+      throw new Error("Could not get IPFS token " + tokenURI);
+    }, 1000);
 
-    const timeout = setTimeout(()=> {
-      throw new Error("Could not get IPFS token " + tokenURI)}
-      ,1000)
-    
-      let title, description, link;
+    let title, description, link;
 
     if (tokenURI && tokenURI !== "0") {
       const node = await IPFS.create();
@@ -100,8 +139,8 @@ class ProjectRaise {
       link = "";
     }
 
-    clearTimeout(timeout)
-    return {title,description,link}
+    clearTimeout(timeout);
+    return { title, description, link };
   }
 
   static withdrawFunds = async function (address: string) {
@@ -115,7 +154,7 @@ class ProjectRaise {
     await contract.methods.withdrawFunds().send({ from: store.state.account });
   };
 
-  static getWithdrawAbleFundAmount = async function (address:string) {
+  static getWithdrawAbleFundAmount = async function (address: string) {
     const web3 = await ensureWeb3();
 
     const contract = await new web3.eth.Contract(
@@ -123,7 +162,7 @@ class ProjectRaise {
       address
     );
     return await contract.methods.withdrawableFunds().call();
-  }
+  };
 
   static cancelProject = async function (address: string): Promise<string> {
     // TODO: Connect to current web3 provider (harmony)
@@ -158,9 +197,7 @@ class ProjectRaise {
       ProjectRaiseABI as AbiItem[],
       address
     );
-    console.log(tierRewards);
-    console.log(tierAmounts);
-    console.log(maxBackers);
+
     // TODO: Make sure to convert values to correct decimal place
     await contract.methods
       .assignTiers(tierAmounts, tierRewards, maxBackers)
@@ -203,7 +240,7 @@ class ProjectRaise {
     );
     // TODO: Make sure to convert values to correct decimal place
     await contract.methods
-      .acceptBacker( amount)
+      .acceptBacker(amount)
       .send({ from: store.state.account, gas: 50000000 });
 
     return error;
@@ -253,7 +290,6 @@ class ProjectRaise {
         ProjectRaiseABI as AbiItem[],
         address
       );
-      const value = web3.utils.toWei(String(amount), "ether");
       // TODO: Make sure to convert values to correct decimal place
       await contract.methods
         .withdrawRefund(amount)
@@ -324,6 +360,17 @@ class ProjectRaise {
       address
     );
     const cancelVote = await contract.methods.getCancelVote(account).call();
+    return cancelVote;
+  };
+
+  static getVotesCount = async function (address) {
+    const web3 = await ensureWeb3();
+
+    const contract = await new web3.eth.Contract(
+      ProjectRaiseABI as AbiItem[],
+      address
+    );
+    const cancelVote = await contract.methods.cancelVoteCount().call();
     return cancelVote;
   };
 
