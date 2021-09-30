@@ -20,8 +20,8 @@ const HARMONY_MAINNET: Network = {
   chainId: 1666600000,
   name: "Harmony",
   rpc: "https://api.harmony.one",
-  factoryContractAddress: null,
-  ustContractAddress: null,
+  factoryContractAddress: "0xd50427B4637080F330A2dc4db3AD1bE62a6811b4",
+  ustContractAddress: "0x224e64ec1bdce3870a6a6c777edd450454068fec",
   ustDecimals: 18
 };
 
