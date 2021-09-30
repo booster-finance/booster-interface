@@ -49,6 +49,7 @@
       <div id="tier-list" v-if="started && !tier">
         <div
           class="tier-select"
+          :class="{ pending: tier.pending }"
           v-for="(tier, index) of value.tiers"
           v-bind:key="`tier-${index}`"
           @click="fundTier(tier)"
@@ -297,7 +298,9 @@ export default defineComponent({
       this.$emit("changeStatus", this.value);
     },
     async fundTier(tier) {
-      this.fund(tier.cost);
+      tier.pending = true;
+      await this.fund(tier.cost);
+      tier.pending = false;
     },
     customFund: async function () {
       const decimals = this.$store.state.network.ustDecimals;
@@ -534,5 +537,21 @@ h3 {
 
 .funding {
   margin: 5em 0;
+}
+
+.pending {
+  animation: pend 1s infinite alternate;
+}
+
+@keyframes pend {
+  0% {
+    background-color: transparent;
+    color: $gray-70;
+  }
+  100% {
+    background-color: $primary;
+    color: $white;
+
+  }
 }
 </style>

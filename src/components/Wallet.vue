@@ -91,6 +91,7 @@ export default defineComponent({
 
       window.ethereum.on("accountsChanged", (accounts) => {
         this.$store.commit("setAccount", accounts[0]);
+        window.location.reload();
       });
     }
   },
