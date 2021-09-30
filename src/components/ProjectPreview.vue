@@ -54,7 +54,7 @@
         <span>Support Project Without Reward</span>
         <div class="row">
           <input v-model="customFunding" type="number" step="0.01" min="0" />
-          <div class="button" @click="fund">Fund</div>
+          <div class="button" @click="customFund">Fund</div>
         </div>
       </div>
 
@@ -113,6 +113,7 @@ import ProjectRaise from "@/web3/projectRaise";
 import { ensureWeb3 } from "@/web3/utils";
 import * as ERC20ABI from "../../contracts/erc20.json";
 import { AbiItem } from "web3-utils";
+import { BigNumber } from "@ethersproject/bignumber";
 
 export default defineComponent({
   name: "ProjectPreview",
@@ -274,7 +275,7 @@ export default defineComponent({
       this.fund(tier.cost);
     },
     customFund: async function () {
-      this.fund(this.customFunding);
+      this.fund(BigNumber.from(this.customFunding));
     },
     fund: async function (amount) {
       try {
