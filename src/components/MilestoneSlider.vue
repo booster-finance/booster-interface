@@ -11,7 +11,7 @@
         {{ idx + 1 }}
 
         <span class="time">
-          {{ new Date(milestone.releaseDate).toLocaleDateString() }}
+          {{ new Date(milestone.releaseDate).toLocaleString() }}
           {{ milestone.releasePercentage }}%
         </span>
       </div>

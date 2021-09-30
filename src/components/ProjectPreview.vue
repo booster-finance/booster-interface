@@ -87,7 +87,9 @@
     </div>
 
     <div id="get-funds" v-if="funded && isCreator">
-      <div class="button" @click="withdrawFunds">Withdraw Milestone Funds</div>
+      <div class="button" @click="withdrawFunds">
+        Withdraw Milestone Funds ({{ this.withdrawableFunds }}$)
+      </div>
     </div>
   </div>
 </template>
@@ -116,6 +118,7 @@ export default defineComponent({
       error: "",
       cancelVotes: 100,
       customFunding: 10,
+      withdrawableFunds: "UNSET",
     };
   },
   watch: {
@@ -184,6 +187,20 @@ export default defineComponent({
         this.error = e.toString();
       }
     },
+    async getWithdrawAbleFunds() {
+      let withdrawableFunds = "UNDEFINED";
+      try {
+        withdrawableFunds = await ProjectRaise.getWithdrawAbleFundAmount(
+          this.value.address
+        );
+        console.log("GET WITHDRAWABLE FUNDS", withdrawableFunds);
+      } catch (e) {
+        console.error(e);
+        this.error = e.toString();
+      }
+
+      return withdrawableFunds;
+    },
     withdrawFunds: async function () {
       try {
         await ProjectRaise.withdrawFunds(this.value.address);
@@ -193,11 +210,13 @@ export default defineComponent({
       }
     },
     updateProject: async function () {
-      if (this.$store.network) {
+      if (this.$store.state.network) {
         this.cancelVotes = await ProjectRaise.getCancelVote(
           this.value.address,
-          this.$store.account
+          this.$store.state.account
         );
+
+        this.withdrawableFunds = await this.getWithdrawAbleFunds();
 
         const web3 = await ensureWeb3();
 

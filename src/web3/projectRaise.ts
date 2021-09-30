@@ -115,6 +115,16 @@ class ProjectRaise {
     await contract.methods.withdrawFunds().send({ from: store.state.account });
   };
 
+  static getWithdrawAbleFundAmount = async function (address:string) {
+    const web3 = await ensureWeb3();
+
+    const contract = await new web3.eth.Contract(
+      ProjectRaiseABI as AbiItem[],
+      address
+    );
+    return await contract.methods.withdrawableFunds().call();
+  }
+
   static cancelProject = async function (address: string): Promise<string> {
     // TODO: Connect to current web3 provider (harmony)
     const web3 = await ensureWeb3();
