@@ -75,7 +75,7 @@
       </div>
       <div class="row" v-if="funded">
         <div class="button" id="no" @click="voteNo">No</div>
-        <div class="button" id="yes" @click="voteYes">Yes</div>
+        <!-- <div class="button" id="yes" @click="voteYes">Yes</div> -->
       </div>
 
       <slider v-if="funded" :max="votesToCancel" :value="cancelVotes" />
