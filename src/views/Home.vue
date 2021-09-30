@@ -146,7 +146,6 @@ export default defineComponent({
       try {
         if (this.network?.factoryContractAddress) {
           let projectAdresses = await ProjectFactory.getProjects();
-          console.log(projectAdresses);
 
           let projects = [];
           for (let address of projectAdresses) {
@@ -157,10 +156,11 @@ export default defineComponent({
               this.$store.state.account
             );
 
-            // let backing = await ProjectRaise.getAddressBacking(
-            //   address,
-            //   this.$store.state.account
-            // );
+            let backing = await ProjectRaise.getAddressBacking(
+              address,
+              this.$store.state.account
+            );
+            console.log({backing});
             if (reward.length > 0)
               this.tiermap[address] = { cost: reward[0].tierAmount, address };
 

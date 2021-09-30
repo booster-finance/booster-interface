@@ -203,7 +203,7 @@ class ProjectRaise {
     );
     // TODO: Make sure to convert values to correct decimal place
     await contract.methods
-      .acceptBacker(amount)
+      .acceptBacker( amount)
       .send({ from: store.state.account, gas: 50000000 });
 
     return error;

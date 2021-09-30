@@ -9,6 +9,11 @@
         <font-awesome-icon class="icon" :icon="['fas', 'sync']" />
       </div>
 
+      <div class="button" id="mc" @click="milestoneCheck">
+        <font-awesome-icon class="icon" :icon="['fas', 'sync']" />
+        2
+      </div>
+
       <header>
         <h2>{{ value.title }}</h2>
       </header>
@@ -60,11 +65,14 @@
       <h3 v-if="!finished">Funding</h3>
       <Slider
         v-if="!finished"
-        :value="calculateCurrentFunding()"
+        :value="value.totalFunding"
         :max="value.fundingGoal"
       />
 
       <h4 v-if="funded">Voting</h4>
+      <div v-if="tier" class="tier-select">
+        <p>{{ tier.cost }} $</p>
+      </div>
       <div class="row" v-if="funded">
         <div class="button" id="no" @click="voteNo">No</div>
         <div class="button" id="yes" @click="voteYes">Yes</div>
@@ -86,7 +94,7 @@
       </div>
     </div>
 
-    <div id="get-funds" v-if="funded && isCreator">
+    <div id="get-funds" v-if="!started && isCreator">
       <div class="button" @click="withdrawFunds">
         Withdraw Milestone Funds ({{ this.withdrawableFunds }}$)
       </div>
@@ -154,7 +162,7 @@ export default defineComponent({
       return this.value?.status == 2;
     },
     cancelled: function () {
-      return this.value?.status == 2;
+      return this.value?.status == 3;
     },
     isCreator: function () {
       if (this.$store.state.account)
@@ -167,11 +175,10 @@ export default defineComponent({
   },
   methods: {
     update: async function () {
-      if (this.value.status == 0) {
-        await ProjectRaise.checkFundingSuccess(this.value.address);
-      } else {
-        await ProjectRaise.milestoneCheck(this.value.address);
-      }
+      await ProjectRaise.checkFundingSuccess(this.value.address);
+    },
+    milestoneCheck: async function () {
+      await ProjectRaise.milestoneCheck(this.value.address);
     },
     withdrawInvestment: async function () {
       try {
@@ -484,6 +491,7 @@ h3 {
   }
 }
 
+#mc,
 #update {
   position: absolute;
   top: 35px;
@@ -502,5 +510,9 @@ h3 {
   &:active .icon {
     transform: rotate(-30deg);
   }
+}
+
+#mc {
+  right: 100px;
 }
 </style>

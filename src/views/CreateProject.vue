@@ -128,11 +128,11 @@ const gaming: Project = {
   ],
   milestones: [
     {
-      releaseDate: Date.now() + 300000,
+      releaseDate: Date.now() + 600000,
       releasePercentage: 50,
     },
     {
-      releaseDate: Date.now() + 600000,
+      releaseDate: Date.now() + 1200000,
       releasePercentage: 50,
     }
   ],
