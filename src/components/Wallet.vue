@@ -1,5 +1,7 @@
 <template>
   <div class="wallet">
+    <span @click="getBalance">{{ balance / 10 ** 18 }} fUST</span>
+    <div class="button" @click="faucet">Peggy Tokens</div>
     <div class="button-wrapper" v-if="address && network">
       <div class="copy-text">Copied To Clipboard</div>
       <input
@@ -44,7 +46,12 @@
 
 <script lang="ts">
 import getNetwork, { defaultChain } from "@/model/Networks";
+import { ensureWeb3 } from "@/web3/utils";
+import { BigNumber } from "@ethersproject/bignumber";
 import { defineComponent } from "@vue/runtime-core";
+import { AbiItem } from "web3-utils";
+
+import * as faucetTokenAbi from "../../contracts/faucetTokenAbi.json";
 
 declare global {
   interface Window {
@@ -55,6 +62,11 @@ declare global {
 // import Button from "./CustomButton.vue";
 export default defineComponent({
   name: "Wallet",
+  data: function () {
+    return {
+      balance: 0,
+    };
+  },
   computed: {
     network: function () {
       return this.$store.state.network;
@@ -96,6 +108,33 @@ export default defineComponent({
     }
   },
   methods: {
+    getBalance: async function () {
+      const web3 = await ensureWeb3();
+
+      const contract = await new web3.eth.Contract(
+        faucetTokenAbi.abi as AbiItem[],
+        this.$store.state.network.ustContractAddress
+      );
+      this.balance = await contract.methods
+        .balanceOf(this.$store.state.account)
+        .call();
+    },
+    faucet: async function () {
+      const web3 = await ensureWeb3();
+
+      const contract = await new web3.eth.Contract(
+        faucetTokenAbi.abi as AbiItem[],
+        this.$store.state.network.ustContractAddress
+      );
+      console.log("PEGGY");
+      await contract.methods
+        .faucet(
+          this.$store.state.account,
+          BigNumber.from(String(10000)).mul(String(Math.pow(10, 18)))
+        )
+        .send({ from: this.$store.state.account });
+      await this.getBalance();
+    },
     copy: function (evt) {
       evt.target.select();
       document.execCommand("Copy");

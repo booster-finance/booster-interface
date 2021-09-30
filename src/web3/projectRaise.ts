@@ -36,7 +36,6 @@ class ProjectRaise {
       .allowance(account, spender)
       .call();
 
-      console.log(amount, allowance)
     if (allowance < amount)
       await stablecoinContract.methods
         .approve(
@@ -275,9 +274,7 @@ class ProjectRaise {
     return error;
   };
 
-  static withdrawRefund = async function (
-    address: string
-  ): Promise<string> {
+  static withdrawRefund = async function (address: string): Promise<string> {
     // TODO: Connect to current web3 provider (harmony)
     const web3 = await ensureWeb3();
 

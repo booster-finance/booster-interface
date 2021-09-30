@@ -117,15 +117,12 @@
 
 <script lang="ts">
 import { Project } from "@/model/Project";
-import { defineComponent, PropType, toDisplayString } from "vue";
+import { defineComponent, PropType } from "vue";
 import Tier from "../model/Tiers";
 import { Tier as TierInterface } from "../model/Project";
 import Slider from "./Slider.vue";
 import MilestoneSlider from "./MilestoneSlider.vue";
 import ProjectRaise from "@/web3/projectRaise";
-import { ensureWeb3 } from "@/web3/utils";
-import * as ERC20ABI from "../../contracts/erc20.json";
-import { AbiItem } from "web3-utils";
 import { BigNumber } from "@ethersproject/bignumber";
 
 export default defineComponent({
