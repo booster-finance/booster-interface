@@ -4,7 +4,7 @@
       <h2>Disclaimer</h2>
       <p>
         This project was created for the TradiFi Defi Hackathon on the Harmony
-        Project and is in a beta stage! <b>We advice to use this on testnet only!</b>
+        Project and is in a beta stage! <b>We advise to use this on testnet only!</b>
         As the contracts have not yet fully battle tested yet.
       </p>
       <p>Anybody can create a project, so use at your own risk!</p>

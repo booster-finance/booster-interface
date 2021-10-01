@@ -6,7 +6,7 @@
 <div style="border: 1px solid red; padding: 15px 20px; margin: 30px 0;border-radius: 5px;">
     <h3>Beta Warning</h3>
     <p>This project was created for a hackathon and is not intended for use in production! The contracts are not tested sufficiently to guarantee a safe environment for real investments!</p>
-    <p>We suggest the use on Testnet only!</p>
+    <p>We suggest to use on Testnet only!</p>
 </div>
 
 # Booster-Finance (BETA) - Frontend

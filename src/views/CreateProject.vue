@@ -109,7 +109,7 @@ const gaming: Project = {
   status: ProjectPhase.Investment,
   fundingGoal: 200,
   totalFunding: 0,
-  description: "A revolutionarey way to raise funds for new projects.",
+  description: "A revolutionary way to raise funds for new projects.",
   link: "https://no-booster-website.yet",
   tiers: [
     {
