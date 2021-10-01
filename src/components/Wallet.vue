@@ -1,7 +1,9 @@
 <template>
   <div class="wallet">
-    <span @click="getBalance">{{ balance / 10 ** 18 }} fUST</span>
-    <div class="button" v-if="network?.testnet" @click="faucet">Peggy Tokens</div>
+    <span @click="updateToken">{{ balance / 10 ** 18 }} {{ tokenSymbol }}</span>
+    <div class="button" v-if="network?.testnet" @click="faucet">
+      Peggy Tokens
+    </div>
     <div class="button-wrapper" v-if="address && network">
       <div class="copy-text">Copied To Clipboard</div>
       <input
@@ -65,6 +67,7 @@ export default defineComponent({
   data: function () {
     return {
       balance: 0,
+      tokenSymbol: "-",
     };
   },
   computed: {
@@ -80,6 +83,11 @@ export default defineComponent({
     shortAddress: function () {
       let add = this.address;
       return add.substring(0, 6) + "..." + add.substring(add.length - 4);
+    },
+  },
+  watch: {
+    network: function () {
+      this.updateToken();
     },
   },
   mounted: async function () {
@@ -105,10 +113,12 @@ export default defineComponent({
         this.$store.commit("setAccount", accounts[0]);
         window.location.reload();
       });
+
+      this.updateToken();
     }
   },
   methods: {
-    getBalance: async function () {
+    updateToken: async function () {
       const web3 = await ensureWeb3();
 
       const contract = await new web3.eth.Contract(
@@ -118,6 +128,8 @@ export default defineComponent({
       this.balance = await contract.methods
         .balanceOf(this.$store.state.account)
         .call();
+
+      this.tokenSymbol = await contract.methods.symbol().call();
     },
     faucet: async function () {
       const web3 = await ensureWeb3();
@@ -126,14 +138,14 @@ export default defineComponent({
         faucetTokenAbi.abi as AbiItem[],
         this.$store.state.network.ustContractAddress
       );
-      
+
       await contract.methods
         .faucet(
           this.$store.state.account,
           BigNumber.from(String(10000)).mul(String(Math.pow(10, 18)))
         )
         .send({ from: this.$store.state.account });
-      await this.getBalance();
+      await this.updateToken();
     },
     copy: function (evt) {
       evt.target.select();
