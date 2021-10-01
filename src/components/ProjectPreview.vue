@@ -1,9 +1,6 @@
 <template>
   <div class="project-preview" :class="{ own: isCreator }">
     <div class="main">
-      <!-- <div class="button" id="status" @click="changeStatus">
-        Status: {{ value.status }}
-      </div> -->
 
       <div class="button" id="update" @click="update">
         <font-awesome-icon class="icon" :icon="['fas', 'sync']" />
@@ -91,7 +88,11 @@
         </div>
       </div>
 
-      <slider v-if="funded" :max="votesToCancel" :value="votes" />
+      <slider
+        v-if="funded"
+        :max="votesToCancel"
+        :value="displayDecimal(votes)"
+      />
 
       <div class="info" v-if="finished">
         <font-awesome-icon class="icon" :icon="['fas', 'info-circle']" />
@@ -223,7 +224,6 @@ export default defineComponent({
         withdrawableFunds = await ProjectRaise.getWithdrawAbleFundAmount(
           this.value.address
         );
-        console.log("GET WITHDRAWABLE FUNDS", withdrawableFunds);
       } catch (e) {
         console.error(e);
         this.error = e.toString();
@@ -248,13 +248,6 @@ export default defineComponent({
 
         this.withdrawableFunds = await this.getWithdrawAbleFunds();
         this.votes = await ProjectRaise.getVotesCount(this.value.address);
-
-        // const web3 = await ensureWeb3();
-
-        // let stablecoinContract = await new web3.eth.Contract(
-        //   ERC20ABI.abi as AbiItem[],
-        //   this.$store.state.network.ustContractAddress
-        // );
       }
     },
     getTierImage: function (index: number) {
@@ -279,15 +272,6 @@ export default defineComponent({
           0
         );
       } else return 0;
-    },
-    /**
-     * Remove change status from ProjectPreview [T/1]
-     *
-     * This is just for debugging purposes in the finala app,
-     * it will be read from the smart contract.
-     */
-    changeStatus() {
-      this.$emit("changeStatus", this.value);
     },
     async fundTier(tier) {
       tier.pending = true;

@@ -44,10 +44,10 @@ import ProjectRaise from "@/web3/projectRaise";
 import { ensureWeb3 } from "@/web3/utils";
 
 const gaming: Project = {
-  address: "0xTHIS_IS_A_DUMMY_ADDRESS",
+  address: "0x545554150c02b61e5191A731E028A40bfE276b1b",
   creator: "0x3e0C626e174334455CF2fDf11C376331389885c2",
   title: "Fred the Knight",
-  status: ProjectPhase.Investment,
+  status: ProjectPhase.Working,
   link: "https://fred-the-game.com",
   fundingGoal: 3000,
   totalFunding: 0,

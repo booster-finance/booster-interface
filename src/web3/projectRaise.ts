@@ -55,7 +55,14 @@ class ProjectRaise {
 
     const tokenURI = await contract.methods.tokenURI().call();
 
-    const { title, description, link } = await this.getIPFS(tokenURI, address);
+    let title, description, link;
+    try {
+      ({ title, description, link } = await this.getIPFS(tokenURI, address));
+    } catch (e) {
+      title = "REMOVED";
+      description = "PROJECT DESCRIPTION WAS REMOVED FROM IPFS";
+      link = `http://ipfs.io/ipfs/${tokenURI}`;
+    }
 
     /**
      * How to convert the properties received from the ProjectRaise contract? [Q/6]
