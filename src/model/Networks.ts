@@ -4,7 +4,8 @@ export interface Network {
   rpc: string;
   factoryContractAddress: string;
   ustContractAddress: string;
-  ustDecimals: number
+  ustDecimals: number;
+  testnet: boolean;
 }
 
 const HARMONY_TESTNET: Network = {
@@ -13,7 +14,8 @@ const HARMONY_TESTNET: Network = {
   rpc: "https: api.s0.b.hmny.io",
   factoryContractAddress: "0xbC38bA81660DF437e20178ACbaB8508569562Ded",
   ustContractAddress: "0x65f70b2884bce4f700421733634BF2BD5a5fe3e7",
-  ustDecimals: 18
+  ustDecimals: 18,
+  testnet: true
 };
 
 const HARMONY_MAINNET: Network = {
@@ -22,7 +24,8 @@ const HARMONY_MAINNET: Network = {
   rpc: "https://api.harmony.one",
   factoryContractAddress: "0xd50427B4637080F330A2dc4db3AD1bE62a6811b4",
   ustContractAddress: "0x224e64ec1bdce3870a6a6c777edd450454068fec",
-  ustDecimals: 18
+  ustDecimals: 18,
+  testnet: false
 };
 
 const Networks = {

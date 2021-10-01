@@ -1,7 +1,7 @@
 <template>
   <div class="wallet">
     <span @click="getBalance">{{ balance / 10 ** 18 }} fUST</span>
-    <div class="button" @click="faucet">Peggy Tokens</div>
+    <div class="button" v-if="network?.testnet" @click="faucet">Peggy Tokens</div>
     <div class="button-wrapper" v-if="address && network">
       <div class="copy-text">Copied To Clipboard</div>
       <input
@@ -126,7 +126,7 @@ export default defineComponent({
         faucetTokenAbi.abi as AbiItem[],
         this.$store.state.network.ustContractAddress
       );
-      console.log("PEGGY");
+      
       await contract.methods
         .faucet(
           this.$store.state.account,
