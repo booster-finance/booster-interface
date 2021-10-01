@@ -1,4 +1,5 @@
 <template>
+  <disclaimer v-if="!consent" @accept="setConsent()" />
   <Header />
   <main>
     <div class="content">
@@ -11,6 +12,7 @@
 import { Options, Vue } from "vue-class-component";
 import Navigation from "@/components/Navigation.vue"; // @ is an alias to /src
 import Header from "./components/Header.vue";
+import Disclaimer from "./components/Disclaimer.vue";
 
 @Options({
   created: function () {
@@ -23,10 +25,23 @@ import Header from "./components/Header.vue";
     Navigation,
     // Modal,
     Header,
+    Disclaimer,
+  },
+  data: function () {
+    return {
+      consent: false,
+    };
+  },
+  mounted: function () {
+    this.consent = !!localStorage.getItem("consent");
   },
   methods: {
     closeWalletModal: function () {
       this.$store.commit("closeWalletModal");
+    },
+    setConsent: function () {
+      localStorage.setItem("consent", "true");
+      this.consent = true;
     },
   },
   computed: {
@@ -63,7 +78,7 @@ main {
   align-items: flex-start;
   justify-content: center;
 
-  background: linear-gradient(10deg, whitesmoke, $white);
+  background: $background;
 
   &::before {
     position: fixed;

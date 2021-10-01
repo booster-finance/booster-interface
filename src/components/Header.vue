@@ -3,6 +3,7 @@
     <router-link :to="{ name: 'Home' }" class="brand">
       <img src="booster.svg" alt="Image of Booster Finance" />
       <span>Booster Finance</span>
+      <span id="betaTag">[beta]</span>
     </router-link>
 
     <Wallet />
@@ -40,10 +41,22 @@ header {
 }
 
 .brand {
+  position: relative;
   display: flex;
   height: 100%;
   align-items: center;
   text-transform: uppercase;
   margin-right: auto;
+}
+
+#betaTag {
+  text-transform: lowercase;
+  font-weight: bold;
+  color: $primary;
+  font-size: 0.75rem;
+  position: absolute;
+  top: 5px;
+  right: 0;
+  transform: translateX(110%);
 }
 </style>
