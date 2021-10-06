@@ -15,6 +15,10 @@ This repository is the frontend of Booster Finance. A kickstarter-like decentral
 
 It allows anyone in the world to create a project they want funding for, like kickstarter, where they can look for backers and reward their backers by using NFTs. We believe that by using NFTs, project creators can get very creative with the type of rewards and things that they offer on chain for supporters and backers.
 
+## Videos
+
+Short Version: https://bit.ly/2Yr60cT
+Detailed Version: https://bit.ly/3abGriL
 
 ### Deployed version
 To test this app, go to https://booster-finance.web.app
